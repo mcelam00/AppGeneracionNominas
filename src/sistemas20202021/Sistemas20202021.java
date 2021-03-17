@@ -21,7 +21,7 @@ import org.hibernate.Transaction;
 
 /**
  *
- * @author scalvd01
+ * @author 
  */
 public class Sistemas20202021 {
 
@@ -32,60 +32,57 @@ public class Sistemas20202021 {
         // TODO code application logic here
 
         //pedir dni por consola
-            Scanner teclado = new Scanner(System.in);
-            System.out.println("Por favor, infroduzca el NIF del trabajador: ");
-            String dni = teclado.nextLine();
-        
+        Scanner teclado = new Scanner(System.in);
+        System.out.println("Por favor, infroduzca el NIF del trabajador: ");
+        String dni = teclado.nextLine();
+
         //llamada al metodo y control de si viene null que salte el error
         TrabajadorbbddDAO camposTrabajador = new TrabajadorbbddDAO();
         EmpresasDAO empresa = new EmpresasDAO();
 
         Trabajadorbbdd trabajadorEncontrado;
 
-        
         trabajadorEncontrado = camposTrabajador.recuperarDatosTrabajador(dni);
-        
-        
-        if(trabajadorEncontrado != null){
-            
+
+        if (trabajadorEncontrado != null) {
+
             System.out.println("Nombre: " + trabajadorEncontrado.getNombre());
             System.out.println("Apellidos: " + trabajadorEncontrado.getApellido1() + " " + trabajadorEncontrado.getApellido2());
             System.out.println("NIF: " + trabajadorEncontrado.getNifnie());
             System.out.println("Categoria: " + trabajadorEncontrado.getCategorias().getNombreCategoria());
             System.out.println("Empresa: " + trabajadorEncontrado.getEmpresas().getNombre());
             System.out.println("--");
-        
-        
-        
+
             for (Iterator<Nomina> it = trabajadorEncontrado.getNominas().iterator(); it.hasNext();) {
                 Nomina n = it.next();
                 System.out.println("Nomina: " + n.getMes() + "/" + n.getAnio() + " | " + n.getBrutoNomina() + "€");
             }
-        
-        
+
             System.out.println("-----------------------");
-            
-            
+
             boolean exitosa = empresa.actualizarNombreEmpresas(trabajadorEncontrado);
-        
-            if(exitosa == true){
+
+            if (exitosa == true) {
                 System.out.println("Actualizacion Fructifera");
-            }else{
+            } else {
                 System.out.println("Actualizacion Fallida");
             }
-            
-            
-        }else{
+
+            exitosa = camposTrabajador.eliminarTrabajadoryNomina(trabajadorEncontrado);
+
+            if (exitosa == true) {
+                System.out.println("Borrado Fructifero");
+            } else {
+                System.out.println("Borrado Fallido");
+            }
+
+        } else {
             System.out.println("ERROR - El trabajador no esta en la base de datos");
-              
+
         }
-        
-        
-        
-        
-                            
-                            
-        
+
+        HibernateUtil.shutdown();
+
     }
 
 }
