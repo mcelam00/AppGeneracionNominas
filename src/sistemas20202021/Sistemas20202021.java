@@ -8,9 +8,11 @@ package sistemas20202021;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
+import modelo.Empresas;
 import modelo.HibernateUtil;
 import modelo.Nomina;
 import modelo.Trabajadorbbdd;
+import modelo.dao.EmpresasDAO;
 import modelo.dao.TrabajadorbbddDAO;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -36,7 +38,10 @@ public class Sistemas20202021 {
         
         //llamada al metodo y control de si viene null que salte el error
         TrabajadorbbddDAO camposTrabajador = new TrabajadorbbddDAO();
+        EmpresasDAO empresa = new EmpresasDAO();
+
         Trabajadorbbdd trabajadorEncontrado;
+
         
         trabajadorEncontrado = camposTrabajador.recuperarDatosTrabajador(dni);
         
@@ -60,10 +65,24 @@ public class Sistemas20202021 {
         
             System.out.println("-----------------------");
             
+            
+            boolean exitosa = empresa.actualizarNombreEmpresas(trabajadorEncontrado);
+        
+            if(exitosa == true){
+                System.out.println("Actualizacion Fructifera");
+            }else{
+                System.out.println("Actualizacion Fallida");
+            }
+            
+            
         }else{
             System.out.println("ERROR - El trabajador no esta en la base de datos");
               
-        }                    
+        }
+        
+        
+        
+        
                             
                             
         

@@ -115,7 +115,7 @@ public Trabajadorbbdd recuperarDatosTrabajador(String dni){
             query.setParameter("param1", dni);
 
             List<Trabajadorbbdd> listaResultado = query.list();
-
+            System.out.println(listaResultado.size());
             if (listaResultado.size() != 0) {
 
                 for (Trabajadorbbdd tbd : listaResultado) {
@@ -127,6 +127,7 @@ public Trabajadorbbdd recuperarDatosTrabajador(String dni){
                     categoria.setNombreCategoria(tbd.getCategorias().getNombreCategoria());
                     trabajador.setCategorias(categoria);
                     empresa.setNombre(tbd.getEmpresas().getNombre());
+                    empresa.setCif(tbd.getEmpresas().getCif()); //le guardamos el CIF para el punto 2
                     trabajador.setEmpresas(empresa);
                     
                     for (Iterator<Nomina> it = tbd.getNominas().iterator(); it.hasNext();) {
@@ -144,13 +145,15 @@ public Trabajadorbbdd recuperarDatosTrabajador(String dni){
                     
 
                 }
+            }else{
+                trabajador = null;
             }
 
-            HibernateUtil.shutdown();
 
         } catch (Exception e) {
             System.out.println("error");
         }
+        
     return trabajador;
 }
 
