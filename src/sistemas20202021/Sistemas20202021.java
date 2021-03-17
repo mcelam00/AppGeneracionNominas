@@ -7,6 +7,7 @@ package sistemas20202021;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Scanner;
 import modelo.HibernateUtil;
 import modelo.Nomina;
 import modelo.Trabajadorbbdd;
@@ -38,7 +39,11 @@ public class Sistemas20202021 {
             String consultaHQL = "FROM Trabajadorbbdd t WHERE t.nifnie = :param1";
 
             //pedir dni por consola
-            String dni = "10200147S";
+            Scanner teclado = new Scanner(System.in);
+            System.out.println("Por favor, infroduzca el NIF del trabajador: ");
+            String dni = teclado.nextLine();
+            
+            //String dni = "10200147S";
 
             Query query = session.createQuery(consultaHQL);
 
