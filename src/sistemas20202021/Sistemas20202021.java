@@ -58,7 +58,7 @@ public class Sistemas20202021 {
 
                     for (Iterator<Nomina> it = tbd.getNominas().iterator(); it.hasNext();) {
                         Nomina n = it.next();
-                        System.out.println("Nomina: " + n.getMes() + "/" + n.getAnio() + " | " + n.getBrutoNomina() + "â‚¬");
+                        System.out.println("Nomina: " + n.getMes() + "/" + n.getAnio() + " | " + n.getBrutoNomina() + "€");
                     }
 
                     System.out.println("-----------------------");
