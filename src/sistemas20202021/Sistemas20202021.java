@@ -18,6 +18,7 @@ import modelo.Trabajadorbbdd;
 //import org.hibernate.Session;
 //import org.hibernate.SessionFactory;
 //import org.hibernate.Transaction;
+import modelo.dao.ManejadorExcel;
 
 /**
  *
@@ -31,6 +32,8 @@ public class Sistemas20202021 {
     public static void main(String[] args) {
 
     	System.out.print("Hola hola");
+    	ManejadorExcel a = new ManejadorExcel();
+    	a.cargarHojaExcel();
     	
 //        //pedir dni por consola
 //        Scanner teclado = new Scanner(System.in);
