@@ -45,11 +45,13 @@ public class ManejadorExcel {
 		        	Empresas empresa = new Empresas();
 		        		 
 		        	//Mas adelante meter todos los atributos de trabajador 
+		        	categoria.setNombreCategoria(formatter.formatCellValue(row.getCell(2)));
 		        	empresa.setNombre(formatter.formatCellValue(row.getCell(0)));
 		        		        
 		        	trabajador.setApellido1(formatter.formatCellValue(row.getCell(4)));
 		        	trabajador.setApellido2(formatter.formatCellValue(row.getCell(5)));
 		        	trabajador.setNombre(formatter.formatCellValue(row.getCell(6)));
+		        	trabajador.setIdTrabajador(row.getRowNum()); //Ponemos el numero de fila que tiene en la hoja excel para volcarlo al XML
 		        	
 		        	//trabajador.setNifnie(row.getCell(7).getStringCellValue());
 		        	trabajador.setNifnie(formatter.formatCellValue(row.getCell(7)));
@@ -57,8 +59,9 @@ public class ManejadorExcel {
 					//trabajador.setCodigoCuenta(row.getCell(9).getStringCellValue());
 		        	trabajador.setCodigoCuenta(formatter.formatCellValue(row.getCell(9)));
 	
-					trabajador.setIban(formatter.formatCellValue(row.getCell(10)));
+					trabajador.setIban(formatter.formatCellValue(row.getCell(10))); //Metemos el nombre del pais para completarlo luego
 		        	trabajador.setEmpresas(empresa);
+		        	trabajador.setCategorias(categoria);
 					
 		        	trabajadores.add(trabajador);
 	      
