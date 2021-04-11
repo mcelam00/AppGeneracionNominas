@@ -11,6 +11,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import com.sun.webkit.Utilities;
+
 import modelo.Categorias;
 import modelo.Empresas;
 import modelo.Trabajadorbbdd;
@@ -74,7 +76,7 @@ public class ManejadorExcel {
 			e.printStackTrace();
 		}	
 		
-		//utilities.corregir(trabajadores)
+		sistemas20202021.Utilities.corregir(trabajadores);
        
 	}
 	
