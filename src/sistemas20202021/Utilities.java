@@ -6,6 +6,7 @@ import java.util.HashMap;
 
 import com.sun.glass.ui.Size;
 
+import modelo.Empresas;
 import modelo.Trabajadorbbdd;
 import modelo.dao.ManejadorXML;
 
@@ -13,23 +14,58 @@ public class Utilities{
 
 	private static ArrayList<Trabajadorbbdd> trabajadores; 
 	private static ArrayList<Trabajadorbbdd> NIFErrores;
+	private static ArrayList<Trabajadorbbdd> CCCErroneas;
+	private static boolean mal = false;
 
 	public static void corregir(ArrayList<Trabajadorbbdd> arrayTrabajadores){
 
 		NIFErrores = new ArrayList<Trabajadorbbdd>();
+		CCCErroneas = new ArrayList<Trabajadorbbdd>();
 
 		trabajadores = arrayTrabajadores;
 
 		for (Trabajadorbbdd trabajadorbbdd : arrayTrabajadores) {
-			//validarNifnie(trabajadorbbdd);
+			validarNifnie(trabajadorbbdd);
 			verificarCCC(trabajadorbbdd);
 			generarIBAN(trabajadorbbdd);
-			//generarEmail(trabajadorbbdd);
+			generarEmail(trabajadorbbdd);
 		}
 
 		ManejadorXML x = new ManejadorXML();
+		limpiarArrayNIFErrores();
 		x.escribirErroresXML(NIFErrores);
+		x.escribirErroresCCCXML(CCCErroneas);
+		
 
+	}
+
+	private static void limpiarArrayNIFErrores() {
+		int aparicion = 0;
+		ArrayList<Trabajadorbbdd> aux = new ArrayList<Trabajadorbbdd>();
+
+		for (Trabajadorbbdd repe : NIFErrores) {
+			boolean r = false;
+			for (Trabajadorbbdd repes : NIFErrores) {
+				if (repe.getNifnie().equals(repes.getNifnie())) {
+					aparicion++;
+					if(aparicion > 1) { //representa que no es él mismo
+						r = true;
+						aparicion = 0;
+						break;
+					}
+				}
+			}
+			if (r) {
+				aux.add(repe);
+				r = false;
+			}
+			
+		}
+
+		for (Trabajadorbbdd a : aux) {
+			NIFErrores.remove(a);
+		}
+		
 	}
 
 	private static void validarNifnie(Trabajadorbbdd t){
@@ -125,7 +161,18 @@ public class Utilities{
 
 			if(!t.getCodigoCuenta().equals(ccc)){
 				//loguear el error al xml
-
+				mal = true;
+				Trabajadorbbdd erroneo = new Trabajadorbbdd(); 
+				erroneo.setCodigoCuenta(t.getCodigoCuenta()); //cuenta sin corregir,
+				erroneo.setNombre(t.getNombre());
+				erroneo.setApellido1(t.getApellido1());
+				erroneo.setApellido2(t.getApellido2());
+				erroneo.setIdTrabajador(t.getIdTrabajador());
+				
+				Empresas empresa = new Empresas();
+				empresa.setNombre(t.getEmpresas().getNombre());
+				erroneo.setEmpresas(empresa);
+				CCCErroneas.add(erroneo);
 
 			}
 			t.setCodigoCuenta(ccc);
@@ -211,7 +258,13 @@ public class Utilities{
 			int resta = 98-resto;
 			String digsControl =  String.format("%02d", resta); //0 para llenar con ceros y 2 para la longitud
 			System.out.println(pais + digsControl + cuenta);
-			t.setIban(pais + digsControl + cuenta);
+			t.setIban(pais + digsControl + cuenta); 
+
+			if (mal) {
+				CCCErroneas.get(CCCErroneas.size() - 1).setIban(pais + digsControl + cuenta);
+				mal = false;
+			}
+			
 		}
 	}
 

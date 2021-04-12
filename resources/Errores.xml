@@ -1,2 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Trabajadores />
+<Trabajadores>
+  <Trabajador id="11">
+    <Nombre>Alencar</Nombre>
+    <PrimerApellido>Alves</PrimerApellido>
+    <SegundoApellido>Lidiane</SegundoApellido>
+    <Empresa>TecnoProyectSL</Empresa>
+    <Categoria>Programador</Categoria>
+  </Trabajador>
+  <Trabajador id="23">
+    <Nombre>Latifa</Nombre>
+    <PrimerApellido>Boughaza</PrimerApellido>
+    <SegundoApellido />
+    <Empresa>Asoftware</Empresa>
+    <Categoria>Auxiliar</Categoria>
+  </Trabajador>
+</Trabajadores>
