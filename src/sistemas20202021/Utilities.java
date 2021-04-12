@@ -24,6 +24,8 @@ public class Utilities{
 
 		trabajadores = arrayTrabajadores;
 
+		componerArrayNIFErrores();
+		
 		for (Trabajadorbbdd trabajadorbbdd : arrayTrabajadores) {
 			validarNifnie(trabajadorbbdd);
 			verificarCCC(trabajadorbbdd);
@@ -31,52 +33,50 @@ public class Utilities{
 			generarEmail(trabajadorbbdd);
 		}
 
+		
+
 		ManejadorXML x = new ManejadorXML();
-		limpiarArrayNIFErrores();
 		x.escribirErroresXML(NIFErrores);
 		x.escribirErroresCCCXML(CCCErroneas);
 		
 
 	}
 
-	private static void limpiarArrayNIFErrores() {
-		int aparicion = 0;
-		ArrayList<Trabajadorbbdd> aux = new ArrayList<Trabajadorbbdd>();
+	private static void componerArrayNIFErrores() {
+		
+		for (int i = 0; i < trabajadores.size(); i++) {
+			Trabajadorbbdd t = trabajadores.get(i);
+				if(t.getNombre() == "") {
+					continue;
+				}else if(t.getNifnie() == ""){
+					NIFErrores.add(t);
+					continue;
+				}
+			for(int j = i+1; j < trabajadores.size(); j++) {
+				Trabajadorbbdd repetido = trabajadores.get(j);
 
-		for (Trabajadorbbdd repe : NIFErrores) {
-			boolean r = false;
-			for (Trabajadorbbdd repes : NIFErrores) {
-				if (repe.getNifnie().equals(repes.getNifnie())) {
-					aparicion++;
-					if(aparicion > 1) { //representa que no es él mismo
-						r = true;
-						aparicion = 0;
-						break;
-					}
+				if (t.getNifnie().compareTo(repetido.getNifnie()) == 0) { //al barrer desde el fijado (exclusive) hacia abajo, pondra solo el segundo y sucesivos, en caso de haberlos 
+					NIFErrores.add(repetido);
+					break;
+			
 				}
 			}
-			if (r) {
-				aux.add(repe);
-				r = false;
-			}
+	
+		
 			
 		}
 
-		for (Trabajadorbbdd a : aux) {
-			NIFErrores.remove(a);
-		}
-		
 	}
 
 	private static void validarNifnie(Trabajadorbbdd t){
 		String dniAValidar = t.getNifnie();
 
 
-		if(t.getNifnie() != "" && repetido(dniAValidar)){  //excluyo de aquí los trabajadores con solo campo DNI en blanco
+		/*if(t.getNifnie() != "" && repetido(dniAValidar)){  //excluyo de aquí los trabajadores con solo campo DNI en blanco
 			//si entra aqui sabemos que esta repetido (y no es una linea en blanco) y lo metemos a errores
-			NIFErrores.add(t);	
+			//NIFErrores.add(t);	
 
-		}
+		}*/
 
 
 		//String dni_re = "^[0-9]{8}[a-zA-Z]{1}$";
@@ -113,7 +113,7 @@ public class Utilities{
 
 			}
 
-		}else {
+		}/*else {
 			//si esta en blanco envía los datos del trabajador al fichero "Errores.xml" (la segunda y posteriores apariciones)
 			//si entra aqui sabemos que esta en blanco, sea porque es una linea blanca, o porque el trabajador tiene ese campo en blanco
 			//si es una linea en blanco no se guarda para volcar al xml
@@ -121,7 +121,7 @@ public class Utilities{
 				NIFErrores.add(t); 	 
 			}
 
-		}
+		}*/
 
 
 	}

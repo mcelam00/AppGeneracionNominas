@@ -1,17 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Trabajadores>
-  <Trabajador id="11">
+  <Trabajador id="3">
+    <Nombre>Mohamed</Nombre>
+    <PrimerApellido>Ahmed</PrimerApellido>
+    <SegundoApellido>Ahmed</SegundoApellido>
+    <Empresa>TecnoProyectSL</Empresa>
+    <Categoria>Analista</Categoria>
+  </Trabajador>
+  <Trabajador id="12">
     <Nombre>Alencar</Nombre>
     <PrimerApellido>Alves</PrimerApellido>
     <SegundoApellido>Lidiane</SegundoApellido>
     <Empresa>TecnoProyectSL</Empresa>
     <Categoria>Programador</Categoria>
   </Trabajador>
-  <Trabajador id="23">
-    <Nombre>Latifa</Nombre>
+  <Trabajador id="24">
+    <Nombre>Latifa Epfouad Erre</Nombre>
     <PrimerApellido>Boughaza</PrimerApellido>
-    <SegundoApellido />
-    <Empresa>Asoftware</Empresa>
+    <SegundoApellido>Boughaza</SegundoApellido>
+    <Empresa>TecnoLeonSL</Empresa>
+    <Categoria>Auxiliar</Categoria>
+  </Trabajador>
+  <Trabajador id="70">
+    <Nombre>Luisa</Nombre>
+    <PrimerApellido>Gracia</PrimerApellido>
+    <SegundoApellido>Puerto</SegundoApellido>
+    <Empresa>TecnoProyectSL</Empresa>
+    <Categoria>Limpiador</Categoria>
+  </Trabajador>
+  <Trabajador id="110">
+    <Nombre>Luisa</Nombre>
+    <PrimerApellido>Gracia</PrimerApellido>
+    <SegundoApellido>Puerto</SegundoApellido>
+    <Empresa>TecnoProyectSL</Empresa>
+    <Categoria>Limpiador</Categoria>
+  </Trabajador>
+  <Trabajador id="82">
+    <Nombre>Pilar</Nombre>
+    <PrimerApellido>Molina</PrimerApellido>
+    <SegundoApellido>Vara</SegundoApellido>
+    <Empresa>TecnoProyectSL</Empresa>
+    <Categoria>Analista</Categoria>
+  </Trabajador>
+  <Trabajador id="87">
+    <Nombre>Paulina</Nombre>
+    <PrimerApellido>Orejas</PrimerApellido>
+    <SegundoApellido>Díez</SegundoApellido>
+    <Empresa>PBlankSA</Empresa>
     <Categoria>Auxiliar</Categoria>
   </Trabajador>
 </Trabajadores>
