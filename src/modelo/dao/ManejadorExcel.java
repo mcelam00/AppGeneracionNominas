@@ -10,8 +10,6 @@ import org.apache.poi.hpsf.Date;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -97,9 +95,6 @@ public class ManejadorExcel {
 
 		XSSFWorkbook workbook = new XSSFWorkbook();
 		XSSFSheet sheet = workbook.createSheet("Datos corregidos");
-		CreationHelper createHelper = workbook.getCreationHelper();
-		CellStyle cellStyle = workbook.createCellStyle();
-		cellStyle.setDataFormat(createHelper.createDataFormat().getFormat("dd/mm/yyyy"));
 		int nFila = 0;
 		int p = 0;
 		int nColumna = 0;
@@ -163,7 +158,6 @@ public class ManejadorExcel {
 				cell2.setCellValue(t.getCategorias().getNombreCategoria());
 				Cell cell3 = fila.createCell(++nColumna);
 				sheet.autoSizeColumn(nColumna);
-				cell3.setCellStyle(cellStyle); 
 				cell3.setCellValue(t.getFechaAlta());
 				Cell cell4 = fila.createCell(++nColumna);
 				sheet.autoSizeColumn(nColumna);
@@ -216,6 +210,57 @@ public class ManejadorExcel {
 		}
 
 	}
+	
+
+	/*
+	public void corregirExcelExistente(ArrayList<Trabajadorbbdd> arrayTrabajadores) {
+
+		int i = 0;
+		
+		try {
+			FileInputStream inputStream = new FileInputStream(RUTA_EXCEL);
+			XSSFWorkbook libro = new XSSFWorkbook(inputStream);
+			XSSFSheet sheet = libro.getSheetAt(HOJA_3);	
+
+			for (Row row : sheet) {
+
+				if(!(row.getRowNum() == 0)) {
+
+									
+					Cell cell0 = row.createCell(7);
+					cell0.setCellValue(arrayTrabajadores.get(i).getNifnie());
+					
+					Cell cell1 = row.createCell(9);
+					cell1.setCellValue(arrayTrabajadores.get(i).getCodigoCuenta());
+					
+					Cell cell2 = row.createCell(11);
+					cell2.setCellValue(arrayTrabajadores.get(i).getIban());
+					
+					Cell cell3 = row.createCell(12);
+					cell3.setCellValue(arrayTrabajadores.get(i).getEmail());
+				
+					i++;
+					
+				}
+
+			}
+				
+			inputStream.close();
+			 
+	        FileOutputStream outputStream = new FileOutputStream(RUTA_EXCEL);
+	        libro.write(outputStream);
+	        libro.close();
+	        outputStream.close();
+
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}	
 
 
+	}
+	
+	*/
+ 
 }
