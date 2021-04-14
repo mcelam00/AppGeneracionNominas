@@ -17,6 +17,10 @@ public class Utilities{
 	private static ArrayList<Trabajadorbbdd> CCCErroneas;
 	private static boolean mal = false;
 
+	public static ArrayList<Trabajadorbbdd> getTrabajadores() {
+		return Utilities.trabajadores;
+	}
+	
 	public static void corregir(ArrayList<Trabajadorbbdd> arrayTrabajadores){
 
 		NIFErrores = new ArrayList<Trabajadorbbdd>();

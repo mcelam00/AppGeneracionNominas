@@ -22,7 +22,8 @@ import modelo.Trabajadorbbdd;
 public class ManejadorExcel {
 
 
-	private String RUTA_EXCEL = "./resources/SistemasInformacionII.xlsx"; 
+	private String RUTA_EXCEL = "./resources/SistemasInformacionII.xlsx";
+	private String RUTA_EXCEL_CORREGIDO = "./resources/Datos_Corregidos.xlsx";
 	private int HOJA_1 = 0;
 	private int HOJA_2 = 1;
 	private int HOJA_3 = 2;
@@ -96,56 +97,60 @@ public class ManejadorExcel {
 		XSSFSheet sheet = workbook.createSheet("Datos corregidos");
 		int nFila = 0;
 		int nColumna = 0;
-		
+
 		for (Trabajadorbbdd t : arrayTrabajadores) {
-			Row fila = sheet.createRow(++nFila);
 			
-			nColumna = -1;
-			
-			Cell cell0 = fila.createCell(++nColumna);
-			cell0.setCellValue(t.getEmpresas().getNombre());
-			Cell cell1 = fila.createCell(++nColumna);
-			cell1.setCellValue(t.getEmpresas().getCif());
-			Cell cell2 = fila.createCell(++nColumna);
-			cell2.setCellValue(t.getCategorias().getNombreCategoria());
-			Cell cell3 = fila.createCell(++nColumna);
-			cell3.setCellValue(t.getFechaAlta());
-			Cell cell4 = fila.createCell(++nColumna);
-			cell4.setCellValue(t.getApellido1());
-			Cell cell5 = fila.createCell(++nColumna);
-			cell5.setCellValue(t.getApellido2());
-			Cell cell6 = fila.createCell(++nColumna);
-			cell6.setCellValue(t.getNombre());
-			Cell cell7 = fila.createCell(++nColumna);
-			cell7.setCellValue(t.getNifnie());
-			Cell cell8 = fila.createCell(++nColumna);
-			cell8.setCellValue(prorratasExtra.get(nColumna));
-			Cell cell9 = fila.createCell(++nColumna);
-			cell9.setCellValue(t.getCodigoCuenta());
-			Cell cell10 = fila.createCell(++nColumna);
-			cell10.setCellValue(t.getIban().substring(0,2));
-			Cell cell11 = fila.createCell(++nColumna);
-			cell11.setCellValue(t.getIban());
-			Cell cell12 = fila.createCell(++nColumna);
-			cell12.setCellValue(t.getEmail());
-			
+			if (t.getNombre() != "") {
+				Row fila = sheet.createRow(++nFila);
+
+				nColumna = -1;
+
+				Cell cell0 = fila.createCell(++nColumna);
+				cell0.setCellValue(t.getEmpresas().getNombre());
+				Cell cell1 = fila.createCell(++nColumna);
+				cell1.setCellValue(t.getEmpresas().getCif());
+				Cell cell2 = fila.createCell(++nColumna);
+				cell2.setCellValue(t.getCategorias().getNombreCategoria());
+				Cell cell3 = fila.createCell(++nColumna);
+				cell3.setCellValue(t.getFechaAlta());
+				Cell cell4 = fila.createCell(++nColumna);
+				cell4.setCellValue(t.getApellido1());
+				Cell cell5 = fila.createCell(++nColumna);
+				cell5.setCellValue(t.getApellido2());
+				Cell cell6 = fila.createCell(++nColumna);
+				cell6.setCellValue(t.getNombre());
+				Cell cell7 = fila.createCell(++nColumna);
+				cell7.setCellValue(t.getNifnie());
+				Cell cell8 = fila.createCell(++nColumna);
+				cell8.setCellValue(prorratasExtra.get(nFila++));
+				Cell cell9 = fila.createCell(++nColumna);
+				cell9.setCellValue(t.getCodigoCuenta());
+				Cell cell10 = fila.createCell(++nColumna);
+				cell10.setCellValue(t.getIban().substring(0,2));
+				Cell cell11 = fila.createCell(++nColumna);
+				cell11.setCellValue(t.getIban());
+				Cell cell12 = fila.createCell(++nColumna);
+				cell12.setCellValue(t.getEmail());
+
+
+			}
 
 		}
 
-		
+
 		try {
-			
-			FileOutputStream output = new FileOutputStream(RUTA_EXCEL);
+
+			FileOutputStream output = new FileOutputStream(RUTA_EXCEL_CORREGIDO);
 			workbook.write(output);
 			output.close();
 			workbook.close();
-			
+
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-        
+
 	}
 
 
