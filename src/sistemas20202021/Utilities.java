@@ -23,8 +23,9 @@ public class Utilities{
 		CCCErroneas = new ArrayList<Trabajadorbbdd>();
 
 		trabajadores = arrayTrabajadores;
-
+ 
 		componerArrayNIFErrores();
+		ordenarArrayNIFErrores();
 		
 		for (Trabajadorbbdd trabajadorbbdd : arrayTrabajadores) {
 			validarNifnie(trabajadorbbdd);
@@ -40,6 +41,23 @@ public class Utilities{
 		x.escribirErroresCCCXML(CCCErroneas);
 		
 
+	}
+
+	private static void ordenarArrayNIFErrores() {
+		
+		Trabajadorbbdd aux = new Trabajadorbbdd();
+		
+		for (int i = 0; i < NIFErrores.size(); i++) {
+			
+			if(i+1 <= NIFErrores.size()-1) {
+				if (NIFErrores.get(i).getIdTrabajador() > NIFErrores.get(i+1).getIdTrabajador() ) { //si el id es mayor que el del siguiente permutamos 
+					aux = NIFErrores.get(i+1);
+					NIFErrores.set(i+1, NIFErrores.get(i));
+					NIFErrores.set(i, aux);
+				}
+			}			
+		}
+		
 	}
 
 	private static void componerArrayNIFErrores() {
@@ -61,7 +79,7 @@ public class Utilities{
 			
 				}
 			}
-	
+
 		}
 
 	}
