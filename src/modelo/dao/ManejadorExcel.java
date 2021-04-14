@@ -10,6 +10,8 @@ import org.apache.poi.hpsf.Date;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -95,6 +97,9 @@ public class ManejadorExcel {
 
 		XSSFWorkbook workbook = new XSSFWorkbook();
 		XSSFSheet sheet = workbook.createSheet("Datos corregidos");
+		CreationHelper createHelper = workbook.getCreationHelper();
+		CellStyle cellStyle = workbook.createCellStyle();
+		cellStyle.setDataFormat(createHelper.createDataFormat().getFormat("dd/mm/yyyy"));
 		int nFila = 0;
 		int p = 0;
 		int nColumna = 0;
@@ -158,6 +163,7 @@ public class ManejadorExcel {
 				cell2.setCellValue(t.getCategorias().getNombreCategoria());
 				Cell cell3 = fila.createCell(++nColumna);
 				sheet.autoSizeColumn(nColumna);
+				cell3.setCellStyle(cellStyle); 
 				cell3.setCellValue(t.getFechaAlta());
 				Cell cell4 = fila.createCell(++nColumna);
 				sheet.autoSizeColumn(nColumna);
