@@ -20,17 +20,17 @@ public class Utilities{
 	public static ArrayList<Trabajadorbbdd> getTrabajadores() {
 		return Utilities.trabajadores;
 	}
-	
+
 	public static void corregir(ArrayList<Trabajadorbbdd> arrayTrabajadores){
 
 		NIFErrores = new ArrayList<Trabajadorbbdd>();
 		CCCErroneas = new ArrayList<Trabajadorbbdd>();
 
 		trabajadores = arrayTrabajadores;
- 
+
 		componerArrayNIFErrores();
 		ordenarArrayNIFErrores();
-		
+
 		for (Trabajadorbbdd trabajadorbbdd : arrayTrabajadores) {
 			validarNifnie(trabajadorbbdd);
 			verificarCCC(trabajadorbbdd);
@@ -38,21 +38,21 @@ public class Utilities{
 			generarEmail(trabajadorbbdd);
 		}
 
-		
+
 
 		ManejadorXML x = new ManejadorXML();
 		x.escribirErroresXML(NIFErrores);
 		x.escribirErroresCCCXML(CCCErroneas);
-		
+
 
 	}
 
 	private static void ordenarArrayNIFErrores() {
-		
+
 		Trabajadorbbdd aux = new Trabajadorbbdd();
-		
+
 		for (int i = 0; i < NIFErrores.size(); i++) {
-			
+
 			if(i+1 <= NIFErrores.size()-1) {
 				if (NIFErrores.get(i).getIdTrabajador() > NIFErrores.get(i+1).getIdTrabajador() ) { //si el id es mayor que el del siguiente permutamos 
 					aux = NIFErrores.get(i+1);
@@ -61,26 +61,26 @@ public class Utilities{
 				}
 			}			
 		}
-		
+
 	}
 
 	private static void componerArrayNIFErrores() {
-		
+
 		for (int i = 0; i < trabajadores.size(); i++) {
 			Trabajadorbbdd t = trabajadores.get(i);
-				if(t.getNombre() == "") {
-					continue;
-				}else if(t.getNifnie() == ""){
-					NIFErrores.add(t);
-					continue;
-				}
+			if(t.getNombre() == "") {
+				continue;
+			}else if(t.getNifnie() == ""){
+				NIFErrores.add(t);
+				continue;
+			}
 			for(int j = i+1; j < trabajadores.size(); j++) {
 				Trabajadorbbdd repetido = trabajadores.get(j);
 
 				if (t.getNifnie().compareTo(repetido.getNifnie()) == 0) { //al barrer desde el fijado (exclusive) hacia abajo, pondra solo el segundo y sucesivos, en caso de haberlos 
 					NIFErrores.add(repetido);
 					break;
-			
+
 				}
 			}
 
@@ -90,14 +90,11 @@ public class Utilities{
 
 	private static void validarNifnie(Trabajadorbbdd t){
 		String dniAValidar = t.getNifnie();
+		boolean extrangero = false;
 
-
-		/*if(t.getNifnie() != "" && repetido(dniAValidar)){  //excluyo de aquí los trabajadores con solo campo DNI en blanco
-			//si entra aqui sabemos que esta repetido (y no es una linea en blanco) y lo metemos a errores
-			//NIFErrores.add(t);	
-
-		}*/
-
+		if (dniAValidar.equals("09741995T")) {
+			System.out.println("e");
+		}
 
 		//String dni_re = "^[0-9]{8}[a-zA-Z]{1}$";
 		String tabla_letras = "TRWAGMYFPDXBNJZSQVHLCKE";
@@ -117,6 +114,7 @@ public class Utilities{
 					dniAValidar = dniAValidar.replaceFirst("Z", "2");
 					first = "2";
 				}
+				extrangero = true;
 			}
 
 			int numeros = Integer.parseInt(dniAValidar.substring(0, dniAValidar.length()-1));
@@ -128,10 +126,14 @@ public class Utilities{
 				//Actualizar su valor en la hoja Excel con la letra correcta
 
 				dniAValidar = dniAValidar.replaceFirst(Character.toString(letra), Character.toString(letraCalculada)); //reemplazamos la letra por la buena
-				dniAValidar = dniAValidar.replaceFirst(first, primera);
+				if (extrangero) {
+					dniAValidar = dniAValidar.replaceFirst(first, primera);
+				}
+				
 				t.setNifnie(dniAValidar);
+				
 
-			}
+			}System.out.println(dniAValidar);
 
 		}/*else {
 			//si esta en blanco envía los datos del trabajador al fichero "Errores.xml" (la segunda y posteriores apariciones)
@@ -188,7 +190,7 @@ public class Utilities{
 				erroneo.setApellido1(t.getApellido1());
 				erroneo.setApellido2(t.getApellido2());
 				erroneo.setIdTrabajador(t.getIdTrabajador());
-				
+
 				Empresas empresa = new Empresas();
 				empresa.setNombre(t.getEmpresas().getNombre());
 				erroneo.setEmpresas(empresa);
@@ -196,7 +198,7 @@ public class Utilities{
 
 			}
 			t.setCodigoCuenta(ccc);
-			System.out.println(ccc);
+			//System.out.println(ccc);
 
 		}
 
@@ -277,14 +279,14 @@ public class Utilities{
 			int resto = numeroIban.mod(modulo).intValue();
 			int resta = 98-resto;
 			String digsControl =  String.format("%02d", resta); //0 para llenar con ceros y 2 para la longitud
-			System.out.println(pais + digsControl + cuenta);
+			//System.out.println(pais + digsControl + cuenta);
 			t.setIban(pais + digsControl + cuenta); 
 
 			if (mal) {
 				CCCErroneas.get(CCCErroneas.size() - 1).setIban(pais + digsControl + cuenta);
 				mal = false;
 			}
-			
+
 		}
 	}
 
@@ -311,7 +313,7 @@ public class Utilities{
 
 			t.setEmail(email.toString());
 		}
-		System.out.println(email);
+		//System.out.println(email);
 	}
 
 	private static String getRepeticiones(Trabajadorbbdd t, String email) {
