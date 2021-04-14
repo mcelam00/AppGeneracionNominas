@@ -34,7 +34,20 @@ public class Sistemas20202021 {
     	System.out.print("Hola hola");
     	ManejadorExcel a = new ManejadorExcel();
     	a.cargarHojaExcel();
+    	
+    	//ACTUALIZAR SOBRE LA HOJA DE ENTRADA
+    	//a.corregirExcelExistente(Utilities.getTrabajadores()); 
+    	
+    	//GENERAR UNA HOJA EXCEL NUEVA CORREGIDA
     	a.crearExcelCorregido(Utilities.getTrabajadores());
+    	
+    	
+    	
+    	
+    	
+    	
+    	
+    	
     	
 //        //pedir dni por consola
 //        Scanner teclado = new Scanner(System.in);
