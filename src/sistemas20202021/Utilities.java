@@ -90,11 +90,11 @@ public class Utilities{
 
 	private static void validarNifnie(Trabajadorbbdd t){
 		String dniAValidar = t.getNifnie();
-		boolean extrangero = false;
+		boolean extranjero = false;
 
-		if (dniAValidar.equals("09741995T")) {
-			System.out.println("e");
-		}
+		//if (dniAValidar.equals("09741995T")) {
+		//	System.out.println("e");
+		//}
 
 		//String dni_re = "^[0-9]{8}[a-zA-Z]{1}$";
 		String tabla_letras = "TRWAGMYFPDXBNJZSQVHLCKE";
@@ -114,7 +114,7 @@ public class Utilities{
 					dniAValidar = dniAValidar.replaceFirst("Z", "2");
 					first = "2";
 				}
-				extrangero = true;
+				extranjero = true;
 			}
 
 			int numeros = Integer.parseInt(dniAValidar.substring(0, dniAValidar.length()-1));
@@ -126,14 +126,14 @@ public class Utilities{
 				//Actualizar su valor en la hoja Excel con la letra correcta
 
 				dniAValidar = dniAValidar.replaceFirst(Character.toString(letra), Character.toString(letraCalculada)); //reemplazamos la letra por la buena
-				if (extrangero) {
+				if (extranjero) {
 					dniAValidar = dniAValidar.replaceFirst(first, primera);
 				}
 				
 				t.setNifnie(dniAValidar);
 				
 
-			}System.out.println(dniAValidar);
+			}
 
 		}/*else {
 			//si esta en blanco envía los datos del trabajador al fichero "Errores.xml" (la segunda y posteriores apariciones)

@@ -28,13 +28,6 @@
     <Empresa>TecnoProyectSL</Empresa>
     <Categoria>Limpiador</Categoria>
   </Trabajador>
-  <Trabajador id="110">
-    <Nombre>Luisa</Nombre>
-    <PrimerApellido>Gracia</PrimerApellido>
-    <SegundoApellido>Puerto</SegundoApellido>
-    <Empresa>TecnoProyectSL</Empresa>
-    <Categoria>Limpiador</Categoria>
-  </Trabajador>
   <Trabajador id="82">
     <Nombre>Pilar</Nombre>
     <PrimerApellido>Molina</PrimerApellido>

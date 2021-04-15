@@ -31,18 +31,28 @@ public class Sistemas20202021 {
      */
     public static void main(String[] args) {
 
-    	System.out.print("Hola hola");
+    	System.out.println("Práctica II - Sistemas de Información II");
     	ManejadorExcel a = new ManejadorExcel();
     	a.cargarHojaExcel();
     	
-    	//ACTUALIZAR SOBRE LA HOJA DE ENTRADA
-    	//a.corregirExcelExistente(Utilities.getTrabajadores()); 
+    	System.out.println("Por favor, indique si desea corregir la hoja fuente [C]\n ó por el contrario crear una nueva hoja corregida [N]");
+    	Scanner teclado = new Scanner(System.in);
+    	String opcion = teclado.nextLine();
+    	teclado.close();
     	
-    	//GENERAR UNA HOJA EXCEL NUEVA CORREGIDA
-    	a.crearExcelCorregido(Utilities.getTrabajadores());
+    	if(opcion.compareTo("C") == 0) {
+    		//ACTUALIZAR SOBRE LA HOJA DE ENTRADA
+        	a.corregirExcelExistente(Utilities.getTrabajadores()); 
+    	}else if (opcion.compareTo("N") == 0) {
+    	 	//GENERAR UNA HOJA EXCEL NUEVA CORREGIDA
+        	a.crearExcelCorregido(Utilities.getTrabajadores());
+    	}else {
+    		System.err.println("Entrada inválida");
+     	} 
+    	   
     	
     	
-    	
+    	System.out.println("FIN DEL PROGRAMA");
     	
     	
     	
