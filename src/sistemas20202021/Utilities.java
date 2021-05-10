@@ -1,7 +1,11 @@
 package sistemas20202021;
 
 import java.math.BigInteger;
+import java.text.Format;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 import com.sun.glass.ui.Size;
@@ -16,7 +20,9 @@ public class Utilities{
 	private static ArrayList<Trabajadorbbdd> NIFErrores;
 	private static ArrayList<Trabajadorbbdd> CCCErroneas;
 	private static boolean mal = false;
+	private static String fechaEntrada;
 
+	
 	public static ArrayList<Trabajadorbbdd> getTrabajadores() {
 		return Utilities.trabajadores;
 	}
@@ -36,6 +42,7 @@ public class Utilities{
 			verificarCCC(trabajadorbbdd);
 			generarIBAN(trabajadorbbdd);
 			generarEmail(trabajadorbbdd);
+			calcularAntiguedad(trabajadorbbdd);
 		}
 
 
@@ -46,7 +53,50 @@ public class Utilities{
 
 
 	}
+//////////////////////////////////////CALCULOS
 
+	private static void calcularAntiguedad(Trabajadorbbdd t){
+
+		if (!t.getFechaAlta().equals("")) {
+			String date = "01/"+fechaEntrada;
+			
+			String[] d1 = date.split("/");
+			int md1 = Integer.valueOf(d1[1]);//mes fecha introducida
+			int yd1 = Integer.valueOf(d1[2]);//año fecha introducida
+			Format formatter = new SimpleDateFormat("dd-MM-yyyy");
+			String s = formatter.format(t.getFechaAlta());
+			String[] d2 = s.split("/");
+			int md2 = Integer.valueOf(d1[1]);//mes fecha alta
+			int yd2 = Integer.valueOf(d1[2]);//año fecha alta
+
+			boolean siguiente = md1 <= md2 ? false : true;
+			int years = yd1 - yd2;
+			float trienios = years/3;
+			
+			
+			if(siguiente) {
+				trienios = (int)Math.ceil(trienios);
+			}else {
+				
+				
+				
+			}
+			
+			
+			
+			System.out.println(trienios);
+
+			
+		
+		}
+		
+	}
+	
+	public static void setEntrada(String entrada) {
+		fechaEntrada = entrada;
+	}
+	
+/////////////////////////////////////CORRECCIONES
 	private static void ordenarArrayNIFErrores() {
 
 		Trabajadorbbdd aux = new Trabajadorbbdd();
@@ -333,3 +383,5 @@ public class Utilities{
 	}
 
 }
+
+

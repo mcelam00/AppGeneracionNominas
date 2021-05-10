@@ -12,6 +12,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import java.util.HashMap;
+
 
 import com.sun.webkit.Utilities;
 
@@ -39,9 +41,13 @@ public class ManejadorExcel {
 		try {
 			FileInputStream libro = new FileInputStream(RUTA_EXCEL);
 			XSSFWorkbook workbook = new XSSFWorkbook(libro);
-			XSSFSheet sheet = workbook.getSheetAt(HOJA_3);	
+			
+			XSSFSheet sheet3 = workbook.getSheetAt(HOJA_3);	
+			XSSFSheet sheet2 = workbook.getSheetAt(HOJA_2);	
+			XSSFSheet sheet1 = workbook.getSheetAt(HOJA_1);
 
-			for (Row row : sheet) {
+
+			for (Row row : sheet3) {
 
 				if(!(row.getRowNum() == 0)) {
 
@@ -63,6 +69,7 @@ public class ManejadorExcel {
 
 					//trabajador.setNifnie(row.getCell(7).getStringCellValue());
 					trabajador.setNifnie(formatter.formatCellValue(row.getCell(7)));
+					trabajador.setProrrataExtra(formatter.formatCellValue(row.getCell(8)).compareTo("SI")==0 ? true : false);
 					prorratasExtra.add(formatter.formatCellValue(row.getCell(8)));
 
 					//trabajador.setCodigoCuenta(row.getCell(9).getStringCellValue());
@@ -78,6 +85,56 @@ public class ManejadorExcel {
 				}
 
 			}
+			
+			HashMap<Integer, Double> brutoAnual_retencion = new HashMap<Integer, Double>();
+		    HashMap<String, Double> descuentos = new HashMap<String, Double>();
+		
+			for (Row row : sheet2) {
+
+				if(!(row.getRowNum() == 0)) {
+				  
+					brutoAnual_retencion.put((int)row.getCell(0).getNumericCellValue(), row.getCell(1).getNumericCellValue());   
+					if(formatter.formatCellValue(row.getCell(5)) == "") {
+						continue;
+					}
+					descuentos.put(row.getCell(5).getStringCellValue(), row.getCell(6).getNumericCellValue());
+					
+				}else{
+					descuentos.put(row.getCell(5).getStringCellValue(), row.getCell(6).getNumericCellValue());
+				}
+				
+				
+				
+			}
+			
+			
+			HashMap<String, Integer> categoria_salarioBase = new HashMap<String, Integer>();
+			HashMap<String, Integer> categoria_complementos = new HashMap<String, Integer>();
+			HashMap<Integer, Integer> nTrienio_importeBruto = new HashMap<Integer, Integer>();
+			
+			for (Row row : sheet1) {
+
+				if(!(row.getRowNum() == 0)) {
+				
+					if (!(formatter.formatCellValue(row.getCell(0)) == "")) {						
+					categoria_salarioBase.put(formatter.formatCellValue(row.getCell(0)), (int)row.getCell(1).getNumericCellValue());
+					categoria_complementos.put(formatter.formatCellValue(row.getCell(0)), (int)row.getCell(2).getNumericCellValue());
+					}
+					nTrienio_importeBruto.put((int)row.getCell(5).getNumericCellValue(), (int)row.getCell(6).getNumericCellValue());
+					
+					
+					
+				}
+			}		
+			
+			System.out.println(brutoAnual_retencion);
+			System.out.println(descuentos);
+			
+			System.out.println(categoria_salarioBase);
+			System.out.println(categoria_complementos);
+			System.out.println(nTrienio_importeBruto);
+
+
 			workbook.close();
 			libro.close();
 
@@ -90,6 +147,12 @@ public class ManejadorExcel {
 		sistemas20202021.Utilities.corregir(trabajadores);
 
 	}
+	
+	
+	
+
+	
+	
 
 	public void crearExcelCorregido(ArrayList<Trabajadorbbdd> arrayTrabajadores) {
 

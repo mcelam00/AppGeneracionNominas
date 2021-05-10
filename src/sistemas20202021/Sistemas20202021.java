@@ -31,14 +31,23 @@ public class Sistemas20202021 {
      */
     public static void main(String[] args) {
 
-    	System.out.println("Práctica II - Sistemas de Información II");
+    	System.out.println("Práctica III - Sistemas de Información II");
+    	
+    	
+    	System.out.println("Por favor, indique el mes y año del que se desean generar las nóminas (formato mm/aaaa)");
+    	Scanner teclado = new Scanner(System.in);
+    	String fecha = teclado.nextLine();
+    	teclado.close();
+    	
+    	
+    	Utilities.setEntrada(fecha);
+    	
     	ManejadorExcel a = new ManejadorExcel();
     	a.cargarHojaExcel();
     	
-    	System.out.println("Por favor, indique si desea corregir la hoja fuente [C]\n ó por el contrario crear una nueva hoja corregida [N]");
-    	Scanner teclado = new Scanner(System.in);
-    	String opcion = teclado.nextLine();
-    	teclado.close();
+    	
+    	
+    	/*
     	
     	if(opcion.compareTo("C") == 0) {
     		//ACTUALIZAR SOBRE LA HOJA DE ENTRADA
@@ -55,7 +64,7 @@ public class Sistemas20202021 {
     	System.out.println("FIN DEL PROGRAMA");
     	
     	
-    	
+    	*/
     	
     	
     	
