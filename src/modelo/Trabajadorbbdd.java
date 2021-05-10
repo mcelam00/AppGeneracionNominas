@@ -18,10 +18,12 @@ public class Trabajadorbbdd  implements java.io.Serializable {
      
      private transient boolean prorrataExtra;
      private transient int antiguedad; //numero de trienios
+     private transient boolean seHaceNomina; //si se hace la nomina por fecha o no (porque no esta contratado aun)
 
 
+     
 
-     private Categorias categorias;
+	private Categorias categorias;
      private Empresas empresas;
      private String nombre;
      private String apellido1;
@@ -160,7 +162,13 @@ public class Trabajadorbbdd  implements java.io.Serializable {
 	public void setAntiguedad(int antiguedad) {
 		this.antiguedad = antiguedad;
 	}
+	public boolean getSeHaceNomina() {
+		return this.seHaceNomina;
+	}
 
+	public void setSeHaceNomina(boolean seHaceNomina) {
+		this.seHaceNomina = seHaceNomina;
+	}
 }
 
 

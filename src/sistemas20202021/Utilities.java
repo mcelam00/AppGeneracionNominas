@@ -56,38 +56,54 @@ public class Utilities{
 //////////////////////////////////////CALCULOS
 
 	private static void calcularAntiguedad(Trabajadorbbdd t){
-
-		if (!t.getFechaAlta().equals("")) {
+	
+		if (t.getFechaAlta()!=null) {
 			String date = "01/"+fechaEntrada;
+
 			
 			String[] d1 = date.split("/");
 			int md1 = Integer.valueOf(d1[1]);//mes fecha introducida
 			int yd1 = Integer.valueOf(d1[2]);//año fecha introducida
+			
 			Format formatter = new SimpleDateFormat("dd-MM-yyyy");
 			String s = formatter.format(t.getFechaAlta());
-			String[] d2 = s.split("/");
-			int md2 = Integer.valueOf(d1[1]);//mes fecha alta
-			int yd2 = Integer.valueOf(d1[2]);//año fecha alta
+			
+			String[] d2 = s.split("-");
+			int md2 = Integer.valueOf(d2[1]);//mes fecha alta
+			int yd2 = Integer.valueOf(d2[2]);//año fecha alta
 
-			boolean siguiente = md1 <= md2 ? false : true;
+			if (((yd2 > yd1)) || ((md2 > md1) && (yd2 >= yd1))) {
+				t.setSeHaceNomina(false);
+				return;
+			}
+			
 			int years = yd1 - yd2;
 			float trienios = years/3;
 			
 			
-			if(siguiente) {
-				trienios = (int)Math.ceil(trienios);
-			}else {
+			if(years % 3 == 0) { //el año es multiplo de los trienios y estoy en el año que hago el trienio
 				
+				//puedo haberlo hecho o no
+				if(md1 > md2) { 
+					//pasé el mes y ya lo estoy cobrando
+
+				}else { //aún no lo pasé y cobro el anterior
+					trienios = trienios -1;
+
+				}
 				
-				
+			}else{
+				//no me toca hacer ningun trienio este año, o lo hice ya, o lo haré en los años futuros
+			
 			}
 			
-			
-			
-			System.out.println(trienios);
-
-			
-		
+			if(trienios < 0) { //la resta de years sale menor a 3, por tanto dividendo < divisor y el modulo salta 0 (no hemos cumplido tres años aún en la empresa y puede salir -1 si el mes es menor o igual al de cumplimiento del trienio)
+				trienios = 0;
+			}
+	
+		//System.out.println(trienios);
+			System.out.println(t.getNombre()+" "+t.getApellido1() + "--"+ trienios);
+			t.setAntiguedad((int)trienios);
 		}
 		
 	}
