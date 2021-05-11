@@ -80,7 +80,7 @@ public class Utilities{
 			int years = yd1 - yd2;
 			float trienios = years/3;
 			
-			
+			 
 			if(years % 3 == 0) { //el año es multiplo de los trienios y estoy en el año que hago el trienio
 				
 				//puedo haberlo hecho o no
