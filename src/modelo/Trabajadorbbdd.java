@@ -18,7 +18,7 @@ public class Trabajadorbbdd  implements java.io.Serializable {
      
      private transient boolean prorrataExtra;
      private transient int antiguedad; //numero de trienios
-     private transient boolean seHaceNomina; //si se hace la nomina por fecha o no (porque no esta contratado aun)
+     private transient boolean seHaceNomina = true; //si se hace la nomina por fecha o no (porque no esta contratado aun)
 
 
      

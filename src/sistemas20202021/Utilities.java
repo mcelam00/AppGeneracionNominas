@@ -7,11 +7,16 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.sun.glass.ui.Size;
 
+import modelo.Categorias;
 import modelo.Empresas;
+import modelo.Nomina;
 import modelo.Trabajadorbbdd;
+import modelo.dao.ManejadorExcel;
 import modelo.dao.ManejadorXML;
 
 public class Utilities{
@@ -21,8 +26,10 @@ public class Utilities{
 	private static ArrayList<Trabajadorbbdd> CCCErroneas;
 	private static boolean mal = false;
 	private static String fechaEntrada;
+	private static Nomina nomina;	//nomina que estamos calculando
+	private static int idNomina = 0;
 
-	
+
 	public static ArrayList<Trabajadorbbdd> getTrabajadores() {
 		return Utilities.trabajadores;
 	}
@@ -43,6 +50,15 @@ public class Utilities{
 			generarIBAN(trabajadorbbdd);
 			generarEmail(trabajadorbbdd);
 			calcularAntiguedad(trabajadorbbdd);
+			System.out.println(trabajadorbbdd.getSeHaceNomina());
+
+			if (trabajadorbbdd.getSeHaceNomina()) {
+
+				calcularSalarioBrutoAnual(trabajadorbbdd);
+
+
+			}
+
 		}
 
 
@@ -53,21 +69,21 @@ public class Utilities{
 
 
 	}
-//////////////////////////////////////CALCULOS
+	//////////////////////////////////////CALCULOS
 
 	private static void calcularAntiguedad(Trabajadorbbdd t){
-	
+
 		if (t.getFechaAlta()!=null) {
 			String date = "01/"+fechaEntrada;
 
-			
+
 			String[] d1 = date.split("/");
 			int md1 = Integer.valueOf(d1[1]);//mes fecha introducida
 			int yd1 = Integer.valueOf(d1[2]);//año fecha introducida
-			
+
 			Format formatter = new SimpleDateFormat("dd-MM-yyyy");
 			String s = formatter.format(t.getFechaAlta());
-			
+
 			String[] d2 = s.split("-");
 			int md2 = Integer.valueOf(d2[1]);//mes fecha alta
 			int yd2 = Integer.valueOf(d2[2]);//año fecha alta
@@ -76,13 +92,13 @@ public class Utilities{
 				t.setSeHaceNomina(false);
 				return;
 			}
-			
+
 			int years = yd1 - yd2;
 			float trienios = years/3;
-			
-			 
+
+
 			if(years % 3 == 0) { //el año es multiplo de los trienios y estoy en el año que hago el trienio
-				
+
 				//puedo haberlo hecho o no
 				if(md1 > md2) { 
 					//pasé el mes y ya lo estoy cobrando
@@ -91,28 +107,127 @@ public class Utilities{
 					trienios = trienios -1;
 
 				}
-				
+
 			}else{
 				//no me toca hacer ningun trienio este año, o lo hice ya, o lo haré en los años futuros
-			
+
 			}
-			
+
 			if(trienios < 0) { //la resta de years sale menor a 3, por tanto dividendo < divisor y el modulo salta 0 (no hemos cumplido tres años aún en la empresa y puede salir -1 si el mes es menor o igual al de cumplimiento del trienio)
 				trienios = 0;
 			}
-	
-		//System.out.println(trienios);
-			System.out.println(t.getNombre()+" "+t.getApellido1() + "--"+ trienios);
-			t.setAntiguedad((int)trienios);
+
+
+
+			//System.out.println(t.getNombre()+" "+t.getApellido1() + "--"+ trienios);
+			nomina = new Nomina(idNomina, t, md1, yd1, (int)trienios);
+			idNomina++;
+			HashSet<Nomina> nominas = new HashSet<Nomina>();
+			//nominas.add(nomina);
+
+			t.setNominas(nominas);
 		}
-		
+
 	}
-	
+
 	public static void setEntrada(String entrada) {
 		fechaEntrada = entrada;
 	}
-	
-/////////////////////////////////////CORRECCIONES
+
+	private static int calcularTrienioPorMes(int md1, int year , String fechaAlta){//devuelve el trienio de cada mes del año
+
+
+		int yd1 = year;//año introducido
+
+
+		String[] d2 = fechaAlta.split("-");
+		int md2 = Integer.valueOf(d2[1]);//mes fecha alta
+		int yd2 = Integer.valueOf(d2[2]);//año fecha alta
+
+		int years = yd1 - yd2;
+		float trienios = years/3;
+
+
+		if(years % 3 == 0) { //el año es multiplo de los trienios y estoy en el año que hago el trienio
+
+			//puedo haberlo hecho o no
+			if(md1 > md2) { 
+				//pasé el mes y ya lo estoy cobrando
+
+			}else { //aún no lo pasé y cobro el anterior
+				trienios = trienios -1;
+
+			}
+
+		}else{
+			//no me toca hacer ningun trienio este año, o lo hice ya, o lo haré en los años futuros
+
+		}
+
+		if(trienios < 0) { //la resta de years sale menor a 3, por tanto dividendo < divisor y el modulo salta 0 (no hemos cumplido tres años aún en la empresa y puede salir -1 si el mes es menor o igual al de cumplimiento del trienio)
+			trienios = 0;
+		}
+
+		return (int)trienios;
+	}
+
+	private static void calcularSalarioBrutoAnual(Trabajadorbbdd t) {
+
+		if (t.getNombre() != "") {
+
+			double brutoAnual = 0;
+			double importeTrienios = 0;
+			int md1 = 1;
+			int year = nomina.getAnio();
+			Date fechaAlta = t.getFechaAlta();
+			Format formatter = new SimpleDateFormat("dd-MM-yyyy");
+			String f = formatter.format(fechaAlta);
+
+			if (year == Integer.valueOf(f.substring(6))) {//para los que no han estado un año entero
+
+			}
+
+
+			for (int i = 0; i < 12; i++) {
+
+				int x = calcularTrienioPorMes(md1, year, f);
+				System.out.println(x);
+				if (x!=0) {
+					importeTrienios += ManejadorExcel.getnTrienio_importeBruto().get(x);
+				}
+
+				md1++;
+
+			}
+
+			System.out.println(t.getNombre()+" "+t.getApellido1() + "--"+ importeTrienios);
+
+			
+			brutoAnual = t.getCategorias().getSalarioBaseCategoria()+t.getCategorias().getComplementoCategoria()+importeTrienios; 
+			
+			
+			System.out.println(t.getNombre()+" "+t.getApellido1() + "--"+ brutoAnual);
+
+
+
+
+			//importeTrienios
+			nomina.setImporteTrienios(ManejadorExcel.getnTrienio_importeBruto().get(nomina.getNumeroTrienios()));
+
+			//salario base + complementos + trienios (si los tiene)
+			//nomina.setBrutoAnual(t.getCategorias().getSalarioBaseCategoria() + t.getCategorias().getComplementoCategoria() + nomina.getImporteTrienios());
+
+
+		}
+	}
+
+
+
+
+
+
+
+	/////////////////////////////////////CORRECCIONES
 	private static void ordenarArrayNIFErrores() {
 
 		Trabajadorbbdd aux = new Trabajadorbbdd();
@@ -195,9 +310,9 @@ public class Utilities{
 				if (extranjero) {
 					dniAValidar = dniAValidar.replaceFirst(first, primera);
 				}
-				
+
 				t.setNifnie(dniAValidar);
-				
+
 
 			}
 

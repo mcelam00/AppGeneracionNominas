@@ -29,10 +29,59 @@ public class ManejadorExcel {
 	private int HOJA_1 = 0;
 	private int HOJA_2 = 1;
 	private int HOJA_3 = 2;
-	private ArrayList<String> prorratasExtra = new ArrayList<String>();
+	private ArrayList<String> prorratasExtra;
 	//private ArrayList<String> paisOrigenCC = new ArrayList<String>();
+	
+	private static HashMap<Integer, Double> brutoAnual_retencion; 
+	private static HashMap<String, Double> descuentos;
+    
+
+	private HashMap<String, Double> categoria_salarioBase; 
+	private HashMap<String, Double> categoria_complementos; 
+	private static HashMap<Integer, Double> nTrienio_importeBruto; 
 
 
+
+	/**
+	 * Getters de los hashMaps
+	 * @return
+	 */
+
+
+	public static HashMap<Integer, Double> getnTrienio_importeBruto() {
+		return nTrienio_importeBruto;
+	}
+    public static HashMap<Integer, Double> getBrutoAnual_retencion() {
+		return brutoAnual_retencion;
+	}
+	public static HashMap<String, Double> getDescuentos() {
+		return descuentos;
+	}
+
+	
+	
+	
+	/**
+	 * Constructor de la clase
+	 */
+	
+	public ManejadorExcel() {
+		
+		this.prorratasExtra = new ArrayList<String>();
+		
+		this.brutoAnual_retencion = new HashMap<Integer, Double>();
+		this.descuentos = new HashMap<String, Double>();
+		this.categoria_salarioBase = new HashMap<String, Double>();
+		this.categoria_complementos = new HashMap<String, Double>();
+		this.nTrienio_importeBruto = new HashMap<Integer, Double>();
+		
+		
+	}
+	
+
+	
+	
+	
 	public void cargarHojaExcel() {
 
 		ArrayList<Trabajadorbbdd> trabajadores = new ArrayList<Trabajadorbbdd>();
@@ -45,50 +94,9 @@ public class ManejadorExcel {
 			XSSFSheet sheet3 = workbook.getSheetAt(HOJA_3);	
 			XSSFSheet sheet2 = workbook.getSheetAt(HOJA_2);	
 			XSSFSheet sheet1 = workbook.getSheetAt(HOJA_1);
-
-
-			for (Row row : sheet3) {
-
-				if(!(row.getRowNum() == 0)) {
-
-
-					Trabajadorbbdd trabajador = new Trabajadorbbdd();
-					Categorias categoria = new Categorias();
-					Empresas empresa = new Empresas();
-
-					//Mas adelante meter todos los atributos de trabajador 
-					empresa.setNombre(formatter.formatCellValue(row.getCell(0)));
-					empresa.setCif(formatter.formatCellValue(row.getCell(1)));
-					categoria.setNombreCategoria(formatter.formatCellValue(row.getCell(2)));
-					trabajador.setFechaAlta(row.getCell(3).getDateCellValue());
-
-					trabajador.setApellido1(formatter.formatCellValue(row.getCell(4)));
-					trabajador.setApellido2(formatter.formatCellValue(row.getCell(5)));
-					trabajador.setNombre(formatter.formatCellValue(row.getCell(6)));
-					trabajador.setIdTrabajador(row.getRowNum()); //Ponemos el numero de fila que tiene en la hoja excel para volcarlo al XML
-
-					//trabajador.setNifnie(row.getCell(7).getStringCellValue());
-					trabajador.setNifnie(formatter.formatCellValue(row.getCell(7)));
-					trabajador.setProrrataExtra(formatter.formatCellValue(row.getCell(8)).compareTo("SI")==0 ? true : false);
-					prorratasExtra.add(formatter.formatCellValue(row.getCell(8)));
-
-					//trabajador.setCodigoCuenta(row.getCell(9).getStringCellValue());
-					trabajador.setCodigoCuenta(formatter.formatCellValue(row.getCell(9)));
-
-					trabajador.setIban(formatter.formatCellValue(row.getCell(10))); //Metemos el nombre del pais para completarlo luego
-					//paisOrigenCC.add(formatter.formatCellValue(row.getCell(10)));
-					trabajador.setEmpresas(empresa);
-					trabajador.setCategorias(categoria);
-
-					trabajadores.add(trabajador);
-
-				}
-
-			}
 			
-			HashMap<Integer, Double> brutoAnual_retencion = new HashMap<Integer, Double>();
-		    HashMap<String, Double> descuentos = new HashMap<String, Double>();
-		
+			//LEER HOJA 2
+
 			for (Row row : sheet2) {
 
 				if(!(row.getRowNum() == 0)) {
@@ -108,32 +116,73 @@ public class ManejadorExcel {
 			}
 			
 			
-			HashMap<String, Integer> categoria_salarioBase = new HashMap<String, Integer>();
-			HashMap<String, Integer> categoria_complementos = new HashMap<String, Integer>();
-			HashMap<Integer, Integer> nTrienio_importeBruto = new HashMap<Integer, Integer>();
+			//LEER HOJA 1
 			
 			for (Row row : sheet1) {
 
 				if(!(row.getRowNum() == 0)) {
 				
 					if (!(formatter.formatCellValue(row.getCell(0)) == "")) {						
-					categoria_salarioBase.put(formatter.formatCellValue(row.getCell(0)), (int)row.getCell(1).getNumericCellValue());
-					categoria_complementos.put(formatter.formatCellValue(row.getCell(0)), (int)row.getCell(2).getNumericCellValue());
+					categoria_salarioBase.put(formatter.formatCellValue(row.getCell(0)), row.getCell(1).getNumericCellValue());
+					categoria_complementos.put(formatter.formatCellValue(row.getCell(0)), row.getCell(2).getNumericCellValue());
 					}
-					nTrienio_importeBruto.put((int)row.getCell(5).getNumericCellValue(), (int)row.getCell(6).getNumericCellValue());
+					nTrienio_importeBruto.put((int)row.getCell(5).getNumericCellValue(), row.getCell(6).getNumericCellValue());
 					
 					
 					
 				}
-			}		
-			
-			System.out.println(brutoAnual_retencion);
-			System.out.println(descuentos);
-			
-			System.out.println(categoria_salarioBase);
-			System.out.println(categoria_complementos);
-			System.out.println(nTrienio_importeBruto);
+			}
 
+			
+			//LEER HOJA 3
+			
+			
+			for (Row row : sheet3) {
+
+				if(!(row.getRowNum() == 0)) {
+
+
+					Trabajadorbbdd trabajador = new Trabajadorbbdd();
+					Categorias categoria = new Categorias();
+					Empresas empresa = new Empresas();
+
+					//Mas adelante meter todos los atributos de trabajador 
+					empresa.setNombre(formatter.formatCellValue(row.getCell(0)));
+					empresa.setCif(formatter.formatCellValue(row.getCell(1)));
+					
+					categoria.setNombreCategoria(formatter.formatCellValue(row.getCell(2)));
+
+					if(formatter.formatCellValue(row.getCell(2)) != "") {
+						categoria.setSalarioBaseCategoria(categoria_salarioBase.get(categoria.getNombreCategoria()));
+						categoria.setComplementoCategoria(categoria_complementos.get(categoria.getNombreCategoria())); 
+					}	
+						
+					trabajador.setFechaAlta(row.getCell(3).getDateCellValue());
+
+					trabajador.setApellido1(formatter.formatCellValue(row.getCell(4)));
+					trabajador.setApellido2(formatter.formatCellValue(row.getCell(5)));
+					trabajador.setNombre(formatter.formatCellValue(row.getCell(6)));
+					trabajador.setIdTrabajador(row.getRowNum()); //Ponemos el numero de fila que tiene en la hoja excel para volcarlo al XML
+
+					//trabajador.setNifnie(row.getCell(7).getStringCellValue());
+					trabajador.setNifnie(formatter.formatCellValue(row.getCell(7)));
+					trabajador.setProrrataExtra(formatter.formatCellValue(row.getCell(8)).compareTo("SI")==0 ? true : false);
+					prorratasExtra.add(formatter.formatCellValue(row.getCell(8)));
+
+					//trabajador.setCodigoCuenta(row.getCell(9).getStringCellValue());
+					trabajador.setCodigoCuenta(formatter.formatCellValue(row.getCell(9)));
+
+					trabajador.setIban(formatter.formatCellValue(row.getCell(10))); //Metemos el nombre del pais para completarlo luego
+					//paisOrigenCC.add(formatter.formatCellValue(row.getCell(10)));
+					trabajador.setEmpresas(empresa);
+					trabajador.setCategorias(categoria); //dejamos guardada la categoria con sus valores al trabajador
+
+					trabajadores.add(trabajador);
+
+				}
+
+			}
+			
 
 			workbook.close();
 			libro.close();
