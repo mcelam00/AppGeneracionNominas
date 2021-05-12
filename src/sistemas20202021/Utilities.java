@@ -30,6 +30,7 @@ public class Utilities{
 	private static boolean mal = false;
 	private static String fechaGeneracion;
 	private static Nomina nomina;	//nomina que estamos calculando
+	private static Nomina nominaExtra;
 	private static int idNomina = 0;
 
 
@@ -53,11 +54,12 @@ public class Utilities{
 			generarIBAN(trabajadorbbdd);
 			generarEmail(trabajadorbbdd);
 			calcularAntiguedad(trabajadorbbdd);
-			System.out.println(trabajadorbbdd.getSeHaceNomina());
+			//System.out.println(trabajadorbbdd.getSeHaceNomina());
 
 			if (trabajadorbbdd.getSeHaceNomina() && trabajadorbbdd.getNombre() != "") { //si esta contratado en la empresa en la fecha introducida y no es una linea vacia en la excel
 				
 					componerNominaMensual(trabajadorbbdd);
+					//System.out.println("a");
 				
 			}
 
@@ -194,7 +196,7 @@ public class Utilities{
 			for (int i = 0; i < 12; i++) {
 
 				int x = calcularTrienioPorMes(md1, year, f);
-				System.out.println(x);
+				//System.out.println(x);
 				if (x!=0) {
 					importeTrienios += ManejadorExcel.getnTrienio_importeBruto().get(x);
 				}
@@ -243,71 +245,100 @@ public class Utilities{
 		nomina.setImporteSalarioMes(salarioBaseMes);
 		Double complementoMes = (trabajador.getCategorias().getComplementoCategoria())/14;
 		nomina.setImporteComplementoMes(complementoMes);
-		Double importeTrienios = ManejadorExcel.getnTrienio_importeBruto().get(nomina.getNumeroTrienios()); //dinero a cobrar justo el mes que se solicita
+		
+		int numeroTrienios = nomina.getNumeroTrienios(); //si es 0 porque no ha hecho el primero, para que el get al buscar 0 en la tabla de trienios no falle lo ponemos en 0.0 (dejamos el valor de inicializacion en este caso)
+		
+		Double importeTrienios = 0.0;
+		
+		if(numeroTrienios != 0) {
+				importeTrienios = ManejadorExcel.getnTrienio_importeBruto().get(numeroTrienios); //dinero a cobrar justo el mes que se solicita
+		}
 		nomina.setImporteTrienios(importeTrienios);
 		
 		
 		
-		//Si la nomina NO es prorrateada el if salta la parte de sumarle 1/6 de la siguiente nomina extra 
 		
-		if(trabajador.getProrrataExtra() == true) {
-			//Si la nomina la tiene prorrateada va cobrando 1/6 de la siguiente nomina extra 
-							
+		
+		//CALCULAMOS SIEMPRE COMO SI ESTUVIERA PRORRATEADA LA NOMINA
+		//Si la nomina la tiene prorrateada va cobrando 1/6 de la siguiente nomina extra 
+		
+		
+		if(mesGeneracion >= 1 && mesGeneracion <= 5) { //Nomina a generar entre enero y mayo incluido
+			//le corresponde extra de Junio
+		
+			Double importeTrieniosExtra = recalculoTrieniosExtra(6,anioGeneracion, fechaAltaTrab);
+			Double importeBrutoExtra = salarioBaseMes + complementoMes + importeTrieniosExtra;
+					
+			//hago 1/6 y lo grabo en el atributo como el valor del prorrateo correspondiente para la nomina que nos piden si cae en este tramo
+		
+			nomina.setValorProrrateo(importeBrutoExtra/6);
 			
-			if(mesGeneracion >= 1 && mesGeneracion <= 5) { //Nomina a generar entre enero y mayo incluido
-				//le corresponde extra de Junio
 			
-				int numTrieniosExtra = calcularTrienioPorMes(6,anioGeneracion, fechaAltaTrab); //calculamos nº de trienios a fecha de la extra
-				Double importeTrieniosExtra = ManejadorExcel.getnTrienio_importeBruto().get(numTrieniosExtra); //sacamos el importe 
-				Double importeBrutoExtra = salarioBaseMes + complementoMes + importeTrieniosExtra;
+		}else if(mesGeneracion >= 6 && mesGeneracion <= 11) {
+			//le corresponde la extra de Diciembre
+			
+			
+			Double importeTrieniosExtra = recalculoTrieniosExtra(12,anioGeneracion, fechaAltaTrab);
+			Double importeBrutoExtra = salarioBaseMes + complementoMes + importeTrieniosExtra;
+					
+			//hago 1/6 y lo grabo en el atributo como el valor del prorrateo correspondiente para la nomina que nos piden si cae en este tramo
+		
+			nomina.setValorProrrateo(importeBrutoExtra/6);
+			
+			
+		}else {
+			//ESPECIAL Es el caso de Diciembre que le corresponde la extra de Junio del sisguiente año
+			
+			Double importeTrieniosExtra = recalculoTrieniosExtra(6,anioGeneracion+1, fechaAltaTrab);
+			Double importeBrutoExtra = salarioBaseMes + complementoMes + importeTrieniosExtra;
+					
+			//hago 1/6 y lo grabo en el atributo como el valor del prorrateo correspondiente para la nomina que nos piden si cae en este tramo
+		
+			nomina.setValorProrrateo(importeBrutoExtra/6);
 						
-				//hago 1/6 y lo grabo en el atributo como el valor del prorrateo correspondiente para la nomina que nos piden si cae en este tramo
-			
-				nomina.setValorProrrateo(importeBrutoExtra/6);
-				
-				
-			}else if(mesGeneracion >= 6 && mesGeneracion <= 11) {
-				//le corresponde la extra de Diciembre
-				
-				int numTrieniosExtra = calcularTrienioPorMes(12,anioGeneracion, fechaAltaTrab); //calculamos nº de trienios a fecha de la extra
-				Double importeTrieniosExtra = ManejadorExcel.getnTrienio_importeBruto().get(numTrieniosExtra); //sacamos el importe 
-				Double importeBrutoExtra = salarioBaseMes + complementoMes + importeTrieniosExtra;
-						
-				//hago 1/6 y lo grabo en el atributo como el valor del prorrateo correspondiente para la nomina que nos piden si cae en este tramo
-			
-				nomina.setValorProrrateo(importeBrutoExtra/6);
-				
-				
-			}else {
-				//ESPECIAL Es el caso de Diciembre que le corresponde la extra de Junio del sisguiente año
-				
-				int numTrieniosExtra = calcularTrienioPorMes(6,anioGeneracion+1, fechaAltaTrab); //calculamos nº de trienios a fecha de la extra
-				Double importeTrieniosExtra = ManejadorExcel.getnTrienio_importeBruto().get(numTrieniosExtra); //sacamos el importe 
-				Double importeBrutoExtra = salarioBaseMes + complementoMes + importeTrieniosExtra;
-						
-				//hago 1/6 y lo grabo en el atributo como el valor del prorrateo correspondiente para la nomina que nos piden si cae en este tramo
-			
-				nomina.setValorProrrateo(importeBrutoExtra/6);
-							
-				
-			}
-			
 			
 		}
 		
+		
 				
-																			//el valor de prorrateo será la inicializacion por defecto de un doble que es 0
+		//DISTINGUIMOS SI ESTA PRORRATEADA O NO
+		Double brutoMes = 0.0;
+		
+		if(!trabajador.getProrrataExtra()) {
+			//Si la nomina NO es prorrateada el if salta la parte de sumarle 1/6 de la siguiente nomina extra
+			//el valor de prorrateo será la inicializacion del double a 0
+			nomina.setBaseEmpresario(salarioBaseMes + complementoMes + importeTrienios + nomina.getValorProrrateo());
+			nomina.setValorProrrateo(0.0);
+			brutoMes = salarioBaseMes + complementoMes + importeTrienios + nomina.getValorProrrateo(); //si tiene prorrateo y entró en el if anterior, sino suma 0
+			nomina.setBrutoNomina(brutoMes);
+			
+			Double valorARestarDescuentos = calcularDescuentos(nomina.getBaseEmpresario());
+			Double IRPF = calcularIRPF(brutoMes, nomina, fechaAlta, anioGeneracion, trabajador);
+			
+			
+			Double liquidoNomina = brutoMes-valorARestarDescuentos-IRPF;
+			nomina.setLiquidoNomina(liquidoNomina);
+			
+			
+		}else {
+			
+			
+			brutoMes = salarioBaseMes + complementoMes + importeTrienios + nomina.getValorProrrateo(); //si tiene prorrateo y entró en el if anterior, sino suma 0
+			nomina.setBrutoNomina(brutoMes);
+			
+			Double valorARestarDescuentos = calcularDescuentos(brutoMes);
+			Double IRPF = calcularIRPF(brutoMes, nomina, fechaAlta, anioGeneracion, trabajador);
+			
+			nomina.setBaseEmpresario(brutoMes);
+			
+			Double liquidoNomina = brutoMes-valorARestarDescuentos-IRPF;
+			nomina.setLiquidoNomina(liquidoNomina);
 
-		Double brutoMes = salarioBaseMes + complementoMes + importeTrienios + nomina.getValorProrrateo(); //si tiene prorrateo y entró en el if anterior, sino suma 0
-		nomina.setBrutoNomina(brutoMes);
+		}
 		
-		Double valorARestarDescuentos = calcularDescuentos(brutoMes);
-		Double IRPF = calcularIRPF(brutoMes, nomina, fechaAlta, anioGeneracion, trabajador);
-		
-		
-		
-		Double liquidoNomina = brutoMes-valorARestarDescuentos-IRPF;
-		nomina.setLiquidoNomina(liquidoNomina);
+				
+						
+
 		
 		//si prorrateo (o no prorrateo pero el mes no es de extra) grabo una
 		
@@ -318,7 +349,7 @@ public class Utilities{
 		
 		if(trabajador.getProrrataExtra() == false && (mesGeneracion == 6 || mesGeneracion == 12)) { //no tiene prorrateo y estoy en un mes de EXTRA, a parte de la nomina basica saco la extra tambien del trabajador
 			//si no prorrateo y el mes es de extra tiene dos nominas
-			Nomina nominaExtra = new Nomina();
+			nominaExtra = new Nomina();
 			
 			nominaExtra.setImporteSalarioMes(salarioBaseMes);
 			nominaExtra.setImporteComplementoMes(complementoMes);
@@ -326,17 +357,15 @@ public class Utilities{
 
 			if(mesGeneracion == 6) {
 				//es la extra de junio
-				int numTrieniosExtra = calcularTrienioPorMes(6,anioGeneracion, fechaAltaTrab); //calculamos nº de trienios a fecha de la extra
-				nominaExtra.setNumeroTrienios(numTrieniosExtra);
-				importeTrieniosExtra = ManejadorExcel.getnTrienio_importeBruto().get(numTrieniosExtra); //sacamos el importe 
+			
+				importeTrieniosExtra = recalculoTrieniosExtra(6, anioGeneracion, fechaAltaTrab);
 				nominaExtra.setImporteTrienios(importeTrieniosExtra);
 
 				
 			}else {
 				//es la extra de diciembre
-				int numTrieniosExtra = calcularTrienioPorMes(12,anioGeneracion, fechaAltaTrab); //calculamos nº de trienios a fecha de la extra
-				nominaExtra.setNumeroTrienios(numTrieniosExtra);
-				importeTrieniosExtra = ManejadorExcel.getnTrienio_importeBruto().get(numTrieniosExtra); //sacamos el importe 
+				
+				importeTrieniosExtra = recalculoTrieniosExtra(12, anioGeneracion, fechaAltaTrab);
 				nominaExtra.setImporteTrienios(importeTrieniosExtra);
 				
 			}
@@ -353,16 +382,79 @@ public class Utilities{
 			//la añado al set
 			trabajador.getNominas().add(nominaExtra);
 			
-			
+			//System.out.println("");
 		}
+
 		
 		
-		
+		System.out.println("---------------------");
+		System.out.println("-"+trabajador.getEmpresas().getNombre() + " (" + trabajador.getEmpresas().getCif()+")");
+		System.out.println("-"+trabajador.getNombre()+" "+trabajador.getApellido1()+" "+ trabajador.getApellido2()+ " (" +trabajador.getNifnie()+")");
+		System.out.println("-Categoría: "+ trabajador.getCategorias().getNombreCategoria());
+		System.out.println("-Fecha de alta: "+trabajador.getFechaAlta());
+		System.out.println("-IBAN: "+ trabajador.getIban());
+		System.out.println("-Bruto anual: "+nomina.getBrutoAnual());
+		System.out.println("-Fecha de la nómina: "+nomina.getMes()+"/"+nomina.getAnio());
+		System.out.println("-Importes a percibir:");
+		System.out.println("\t-Salario base mes: "+nomina.getImporteSalarioMes());
+		System.out.println("\t-Prorrateo mes: "+nomina.getValorProrrateo());
+		System.out.println("\t-Complemento mes: "+nomina.getImporteComplementoMes());
+		System.out.println("\t-Antigüedad mes: "+nomina.getImporteTrienios());
+		System.out.println("-Descuentos trabajador:");
+		System.out.println("\t-Contingencias generales: "+nomina.getSeguridadSocialTrabajador()+"% de "+nomina.getBaseEmpresario()+"\t"+nomina.getImporteSeguridadSocialTrabajador());
+		System.out.println("\t-Desempleo: "+nomina.getDesempleoTrabajador()+"% de "+nomina.getBaseEmpresario()+"\t"+nomina.getImporteDesempleoTrabajador());
+		System.out.println("\t-Cuota formación: "+nomina.getFormacionTrabajador()+"% de "+nomina.getBaseEmpresario()+"\t"+nomina.getImporteFormacionTrabajador());
+		System.out.println("\t-IRPF: "+nomina.getIrpf()+"% de "+nomina.getBrutoNomina()+"\t"+nomina.getImporteIrpf());
+		System.out.println("-Total ingresos: "+nomina.getBrutoNomina());
+		System.out.println("-Total deducciones: "+(nomina.getImporteSeguridadSocialTrabajador()+nomina.getImporteDesempleoTrabajador()+nomina.getImporteFormacionTrabajador()+nomina.getImporteIrpf()));
+		System.out.println("-Liquido a percibir: "+nomina.getLiquidoNomina());
+
+		if (trabajador.getNominas().size() == 2) {
+		System.out.println("---------------------");
+		System.out.println("-"+trabajador.getEmpresas().getNombre() + " (" + trabajador.getEmpresas().getCif()+")");
+		System.out.println("-"+trabajador.getNombre()+" "+trabajador.getApellido1()+" "+ trabajador.getApellido2()+ " (" +trabajador.getNifnie()+")");
+		System.out.println("-Categoría: "+ trabajador.getCategorias().getNombreCategoria());
+		System.out.println("-Fecha de alta: "+trabajador.getFechaAlta());
+		System.out.println("-IBAN: "+ trabajador.getIban());
+		System.out.println("-Bruto anual: "+nominaExtra.getBrutoAnual());
+		System.out.println("-Fecha de la nómina: "+nominaExtra.getMes()+"/"+nominaExtra.getAnio()+"EXTRA");
+		System.out.println("-Importes a percibir:");
+		System.out.println("\t-Salario base mes: "+nominaExtra.getImporteSalarioMes());
+		System.out.println("\t-Prorrateo mes: "+nominaExtra.getValorProrrateo());
+		System.out.println("\t-Complemento mes: "+nominaExtra.getImporteComplementoMes());
+		System.out.println("\t-Antigüedad mes: "+nominaExtra.getImporteTrienios());
+		System.out.println("-Descuentos trabajador:");
+		System.out.println("\t-Contingencias generales: "+nominaExtra.getSeguridadSocialTrabajador()+"% de "+nominaExtra.getBaseEmpresario()+"\t"+nominaExtra.getImporteSeguridadSocialTrabajador());
+		System.out.println("\t-Desempleo: "+nominaExtra.getDesempleoTrabajador()+"% de "+nominaExtra.getBaseEmpresario()+"\t"+nominaExtra.getImporteDesempleoTrabajador());
+		System.out.println("\t-Cuota formación: "+nominaExtra.getFormacionTrabajador()+"% de "+nominaExtra.getBaseEmpresario()+"\t"+nominaExtra.getImporteFormacionTrabajador());
+		System.out.println("\t-IRPF: "+nominaExtra.getIrpf()+"% de "+nominaExtra.getBrutoNomina()+"\t"+nominaExtra.getImporteIrpf());
+		System.out.println("-Total ingresos: "+nominaExtra.getBrutoNomina());
+		System.out.println("-Total deducciones: "+(nominaExtra.getImporteSeguridadSocialTrabajador()+nominaExtra.getImporteDesempleoTrabajador()+nominaExtra.getImporteFormacionTrabajador()+nominaExtra.getImporteIrpf()));
+		System.out.println("-Liquido a percibir: "+nominaExtra.getLiquidoNomina());
+		}
 	
 		
 	}
 	
+	private static Double recalculoTrieniosExtra(int mesDeLaExtra , int anioGeneracion, String fechaAltaTrab) {
+		
+		Double importeTrieniosExtra;
+		
+		int numTrieniosExtra = calcularTrienioPorMes(mesDeLaExtra,anioGeneracion, fechaAltaTrab); //calculamos nº de trienios en la fecha de la extra
+		
+		if(numTrieniosExtra == 0) {
+			importeTrieniosExtra = 0.0;
+		}else {
+			importeTrieniosExtra = ManejadorExcel.getnTrienio_importeBruto().get(numTrieniosExtra); //sacamos el importe recalculado de la extra que hay que añadirle en 1/6 a la nomina
 
+		}
+		
+		
+		return importeTrieniosExtra;
+	}
+	
+	
+	
 	private static Double calcularDescuentos(Double brutoMes) {
 		
 		//Cuota Obrera General
@@ -395,7 +487,7 @@ public class Utilities{
 		nomina.setImporteFormacionTrabajador(importeForm);			
 			
 		
-		return (importeSegSoc+importeDes+importeForm);
+		return (importeSegSoc+ importeDes + importeForm);
 			
 	}
 	
