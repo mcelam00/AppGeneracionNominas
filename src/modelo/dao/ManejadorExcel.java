@@ -13,7 +13,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.util.HashMap;
-
+import java.util.LinkedHashMap;
 
 import com.sun.webkit.Utilities;
 
@@ -32,7 +32,7 @@ public class ManejadorExcel {
 	private ArrayList<String> prorratasExtra;
 	//private ArrayList<String> paisOrigenCC = new ArrayList<String>();
 	
-	private static HashMap<Integer, Double> brutoAnual_retencion; 
+	private static LinkedHashMap<Integer, Double> brutoAnual_retencion; 
 	private static HashMap<String, Double> descuentos;
     
 
@@ -51,7 +51,7 @@ public class ManejadorExcel {
 	public static HashMap<Integer, Double> getnTrienio_importeBruto() {
 		return nTrienio_importeBruto;
 	}
-    public static HashMap<Integer, Double> getBrutoAnual_retencion() {
+    public static LinkedHashMap<Integer, Double> getBrutoAnual_retencion() {
 		return brutoAnual_retencion;
 	}
 	public static HashMap<String, Double> getDescuentos() {
@@ -69,7 +69,7 @@ public class ManejadorExcel {
 		
 		this.prorratasExtra = new ArrayList<String>();
 		
-		this.brutoAnual_retencion = new HashMap<Integer, Double>();
+		this.brutoAnual_retencion = new LinkedHashMap<Integer, Double>();
 		this.descuentos = new HashMap<String, Double>();
 		this.categoria_salarioBase = new HashMap<String, Double>();
 		this.categoria_complementos = new HashMap<String, Double>();

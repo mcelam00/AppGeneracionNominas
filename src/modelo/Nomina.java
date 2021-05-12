@@ -15,8 +15,8 @@ public class Nomina  implements java.io.Serializable {
      private int anio;
      private int numeroTrienios;
      private Double importeTrienios;
-     private Double importeSalarioMes;
-     private Double importeComplementoMes;
+     private Double importeSalarioMes; //salario base mes
+     private Double importeComplementoMes; //complemento mes
      private Double valorProrrateo;
      private Double brutoAnual;
      private Double irpf;

@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 import com.sun.glass.ui.Size;
@@ -25,7 +28,7 @@ public class Utilities{
 	private static ArrayList<Trabajadorbbdd> NIFErrores;
 	private static ArrayList<Trabajadorbbdd> CCCErroneas;
 	private static boolean mal = false;
-	private static String fechaEntrada;
+	private static String fechaGeneracion;
 	private static Nomina nomina;	//nomina que estamos calculando
 	private static int idNomina = 0;
 
@@ -52,11 +55,10 @@ public class Utilities{
 			calcularAntiguedad(trabajadorbbdd);
 			System.out.println(trabajadorbbdd.getSeHaceNomina());
 
-			if (trabajadorbbdd.getSeHaceNomina()) {
-
-				calcularSalarioBrutoAnual(trabajadorbbdd);
-
-
+			if (trabajadorbbdd.getSeHaceNomina() && trabajadorbbdd.getNombre() != "") { //si esta contratado en la empresa en la fecha introducida y no es una linea vacia en la excel
+				
+					componerNominaMensual(trabajadorbbdd);
+				
 			}
 
 		}
@@ -74,7 +76,7 @@ public class Utilities{
 	private static void calcularAntiguedad(Trabajadorbbdd t){
 
 		if (t.getFechaAlta()!=null) {
-			String date = "01/"+fechaEntrada;
+			String date = "01/"+fechaGeneracion;
 
 
 			String[] d1 = date.split("/");
@@ -131,13 +133,13 @@ public class Utilities{
 	}
 
 	public static void setEntrada(String entrada) {
-		fechaEntrada = entrada;
+		fechaGeneracion = entrada;
 	}
 
-	private static int calcularTrienioPorMes(int md1, int year , String fechaAlta){//devuelve el trienio de cada mes del año
+	private static int calcularTrienioPorMes(int md1, int anioGeneracion , String fechaAlta){//devuelve el trienio de cada mes del año
 
 
-		int yd1 = year;//año introducido
+		int yd1 = anioGeneracion;//año introducido por consola
 
 
 		String[] d2 = fechaAlta.split("-");
@@ -171,15 +173,16 @@ public class Utilities{
 		return (int)trienios;
 	}
 
-	private static void calcularSalarioBrutoAnual(Trabajadorbbdd t) {
+	private static Double calcularAntiguedadAnioGeneracion(int anioGeneracion, Date fechaAlta) {
 
-		if (t.getNombre() != "") {
-
+		
 			double brutoAnual = 0;
 			double importeTrienios = 0;
 			int md1 = 1;
-			int year = nomina.getAnio();
-			Date fechaAlta = t.getFechaAlta();
+			//int year = nomina.getAnio();
+			int year = anioGeneracion;
+			//Date fechaAlta = t.getFechaAlta();
+			
 			Format formatter = new SimpleDateFormat("dd-MM-yyyy");
 			String f = formatter.format(fechaAlta);
 
@@ -199,7 +202,7 @@ public class Utilities{
 				md1++;
 
 			}
-
+/*
 			System.out.println(t.getNombre()+" "+t.getApellido1() + "--"+ importeTrienios);
 
 			
@@ -209,23 +212,257 @@ public class Utilities{
 			System.out.println(t.getNombre()+" "+t.getApellido1() + "--"+ brutoAnual);
 
 
-
-
-			//importeTrienios
-			nomina.setImporteTrienios(ManejadorExcel.getnTrienio_importeBruto().get(nomina.getNumeroTrienios()));
+			//nomina.setImporteTrienios(ManejadorExcel.getnTrienio_importeBruto().get(nomina.getNumeroTrienios()));
 
 			//salario base + complementos + trienios (si los tiene)
 			//nomina.setBrutoAnual(t.getCategorias().getSalarioBaseCategoria() + t.getCategorias().getComplementoCategoria() + nomina.getImporteTrienios());
 
-
-		}
+*/
+			
+			return importeTrienios;
+		
 	}
 
+	private static void componerNominaMensual(Trabajadorbbdd trabajador) {
+		
+		
+		String fechaGen = "01/"+fechaGeneracion;
+		String[] d1 = fechaGen.split("/");
+		int mesGeneracion = Integer.valueOf(d1[1]);//mes fecha introducida
+		int anioGeneracion = Integer.valueOf(d1[2]);//año fecha introducida
+		
+		Date fechaAlta = trabajador.getFechaAlta();
+		Format formatter = new SimpleDateFormat("dd-MM-yyyy");
+		String fechaAltaTrab = formatter.format(fechaAlta);
+		
 
+		
+		
+		
+		Double salarioBaseMes = (trabajador.getCategorias().getSalarioBaseCategoria())/14; //el salario base segun la categoria lo tenemos guardado en cada uno ya desde manejaroExcel
+		nomina.setImporteSalarioMes(salarioBaseMes);
+		Double complementoMes = (trabajador.getCategorias().getComplementoCategoria())/14;
+		nomina.setImporteComplementoMes(complementoMes);
+		Double importeTrienios = ManejadorExcel.getnTrienio_importeBruto().get(nomina.getNumeroTrienios()); //dinero a cobrar justo el mes que se solicita
+		nomina.setImporteTrienios(importeTrienios);
+		
+		
+		
+		//Si la nomina NO es prorrateada el if salta la parte de sumarle 1/6 de la siguiente nomina extra 
+		
+		if(trabajador.getProrrataExtra() == true) {
+			//Si la nomina la tiene prorrateada va cobrando 1/6 de la siguiente nomina extra 
+							
+			
+			if(mesGeneracion >= 1 && mesGeneracion <= 5) { //Nomina a generar entre enero y mayo incluido
+				//le corresponde extra de Junio
+			
+				int numTrieniosExtra = calcularTrienioPorMes(6,anioGeneracion, fechaAltaTrab); //calculamos nº de trienios a fecha de la extra
+				Double importeTrieniosExtra = ManejadorExcel.getnTrienio_importeBruto().get(numTrieniosExtra); //sacamos el importe 
+				Double importeBrutoExtra = salarioBaseMes + complementoMes + importeTrieniosExtra;
+						
+				//hago 1/6 y lo grabo en el atributo como el valor del prorrateo correspondiente para la nomina que nos piden si cae en este tramo
+			
+				nomina.setValorProrrateo(importeBrutoExtra/6);
+				
+				
+			}else if(mesGeneracion >= 6 && mesGeneracion <= 11) {
+				//le corresponde la extra de Diciembre
+				
+				int numTrieniosExtra = calcularTrienioPorMes(12,anioGeneracion, fechaAltaTrab); //calculamos nº de trienios a fecha de la extra
+				Double importeTrieniosExtra = ManejadorExcel.getnTrienio_importeBruto().get(numTrieniosExtra); //sacamos el importe 
+				Double importeBrutoExtra = salarioBaseMes + complementoMes + importeTrieniosExtra;
+						
+				//hago 1/6 y lo grabo en el atributo como el valor del prorrateo correspondiente para la nomina que nos piden si cae en este tramo
+			
+				nomina.setValorProrrateo(importeBrutoExtra/6);
+				
+				
+			}else {
+				//ESPECIAL Es el caso de Diciembre que le corresponde la extra de Junio del sisguiente año
+				
+				int numTrieniosExtra = calcularTrienioPorMes(6,anioGeneracion+1, fechaAltaTrab); //calculamos nº de trienios a fecha de la extra
+				Double importeTrieniosExtra = ManejadorExcel.getnTrienio_importeBruto().get(numTrieniosExtra); //sacamos el importe 
+				Double importeBrutoExtra = salarioBaseMes + complementoMes + importeTrieniosExtra;
+						
+				//hago 1/6 y lo grabo en el atributo como el valor del prorrateo correspondiente para la nomina que nos piden si cae en este tramo
+			
+				nomina.setValorProrrateo(importeBrutoExtra/6);
+							
+				
+			}
+			
+			
+		}
+		
+				
+																			//el valor de prorrateo será la inicializacion por defecto de un doble que es 0
 
+		Double brutoMes = salarioBaseMes + complementoMes + importeTrienios + nomina.getValorProrrateo(); //si tiene prorrateo y entró en el if anterior, sino suma 0
+		nomina.setBrutoNomina(brutoMes);
+		
+		Double valorARestarDescuentos = calcularDescuentos(brutoMes);
+		Double IRPF = calcularIRPF(brutoMes, nomina, fechaAlta, anioGeneracion, trabajador);
+		
+		
+		
+		Double liquidoNomina = brutoMes-valorARestarDescuentos-IRPF;
+		nomina.setLiquidoNomina(liquidoNomina);
+		
+		//si prorrateo (o no prorrateo pero el mes no es de extra) grabo una
+		
+		trabajador.getNominas().add(nomina);
+		
+		
+		
+		
+		if(trabajador.getProrrataExtra() == false && (mesGeneracion == 6 || mesGeneracion == 12)) { //no tiene prorrateo y estoy en un mes de EXTRA, a parte de la nomina basica saco la extra tambien del trabajador
+			//si no prorrateo y el mes es de extra tiene dos nominas
+			Nomina nominaExtra = new Nomina();
+			
+			nominaExtra.setImporteSalarioMes(salarioBaseMes);
+			nominaExtra.setImporteComplementoMes(complementoMes);
+			Double importeTrieniosExtra;
 
+			if(mesGeneracion == 6) {
+				//es la extra de junio
+				int numTrieniosExtra = calcularTrienioPorMes(6,anioGeneracion, fechaAltaTrab); //calculamos nº de trienios a fecha de la extra
+				nominaExtra.setNumeroTrienios(numTrieniosExtra);
+				importeTrieniosExtra = ManejadorExcel.getnTrienio_importeBruto().get(numTrieniosExtra); //sacamos el importe 
+				nominaExtra.setImporteTrienios(importeTrieniosExtra);
 
+				
+			}else {
+				//es la extra de diciembre
+				int numTrieniosExtra = calcularTrienioPorMes(12,anioGeneracion, fechaAltaTrab); //calculamos nº de trienios a fecha de la extra
+				nominaExtra.setNumeroTrienios(numTrieniosExtra);
+				importeTrieniosExtra = ManejadorExcel.getnTrienio_importeBruto().get(numTrieniosExtra); //sacamos el importe 
+				nominaExtra.setImporteTrienios(importeTrieniosExtra);
+				
+			}
+			
+			Double importeBrutoExtra = salarioBaseMes + complementoMes + importeTrieniosExtra;
+			nominaExtra.setBrutoNomina(importeBrutoExtra);
+			
+			Double IRPFExtra = calcularIRPF(brutoMes, nominaExtra, fechaAlta, anioGeneracion, trabajador);
+					
+			Double importeLiquidoExtra = importeBrutoExtra - IRPFExtra;
+			nominaExtra.setLiquidoNomina(importeLiquidoExtra);
+			
+		
+			//la añado al set
+			trabajador.getNominas().add(nominaExtra);
+			
+			
+		}
+		
+		
+		
+	
+		
+	}
+	
 
+	private static Double calcularDescuentos(Double brutoMes) {
+		
+		//Cuota Obrera General
+			//entrada de la tabla a la nomina
+		Double porcentSegSoc = ManejadorExcel.getDescuentos().get("Cuota obrera general TRABAJADOR");
+		nomina.setSeguridadSocialTrabajador(porcentSegSoc);
+		
+		Double importeSegSoc = brutoMes*(porcentSegSoc/100);
+						
+		nomina.setImporteSeguridadSocialTrabajador(importeSegSoc);		
+				
+		
+		//Desempleo
+			//entrada de la tabla a la nomina
+		Double porcentDes = ManejadorExcel.getDescuentos().get("Cuota desempleo TRABAJADOR");
+		nomina.setDesempleoTrabajador(porcentDes);
+				
+		Double importeDes = brutoMes*(porcentDes/100);
+							
+		nomina.setImporteDesempleoTrabajador(importeDes);		
+				
+		
+		//Formacion
+			//entrada de la tabla a la nomina
+		Double porcentForm = ManejadorExcel.getDescuentos().get("Cuota formación TRABAJADOR");
+		nomina.setFormacionTrabajador(porcentForm);
+				
+		Double importeForm = brutoMes*(porcentForm/100);
+							
+		nomina.setImporteFormacionTrabajador(importeForm);			
+			
+		
+		return (importeSegSoc+importeDes+importeForm);
+			
+	}
+	
+	
+	private static Double calcularIRPF(Double brutoMes, Nomina nomina, Date fechaAlta, int anioGeneracion, Trabajadorbbdd trabajador) {
+
+		Format formatter = new SimpleDateFormat("dd-MM-yyyy");
+		String fechaAltaTrab = formatter.format(fechaAlta);
+		String[] d2 = fechaAltaTrab.split("-");
+		int mesFechaAlta = Integer.valueOf(d2[1]);//mes fecha alta
+		int anioFechaAlta = Integer.valueOf(d2[2]);//año fecha alta
+				
+		
+		//CALCULAR EL BRUTO ANUAL (venenoso)
+		
+		int mesesTrabajadosAnioCurso; 
+		
+		if(anioFechaAlta == anioGeneracion) { //si entro en el mismo año que generamos la nomina (salvo si entro en enero, no lo ha trabajado completo)
+			
+			mesesTrabajadosAnioCurso = 12 - (mesFechaAlta-1);
+			//si entro en febero a trabajar, es el mes 2, 2-1 = 1 --> 12-1 = 11 meses trabajados del año
+			
+		}else { //si el año que entro es anterior al de generacion de nomina (ha trabajado el año completo)
+			
+			mesesTrabajadosAnioCurso = 12; //así 12 dividiendo y 12 multiplicando se van y la formula de bruto queda como para año entero trabajado
+						
+		}
+			
+		Double brutoAnual = ((trabajador.getCategorias().getSalarioBaseCategoria())/12)*mesesTrabajadosAnioCurso + ((trabajador.getCategorias().getComplementoCategoria())/12)*mesesTrabajadosAnioCurso + calcularAntiguedadAnioGeneracion(anioGeneracion, fechaAlta); //si el año es el que acaba de entrar la antiguedad del año es 0
+		nomina.setBrutoAnual(brutoAnual);
+		
+		
+		//SACAR EL % DE LA TABLA SEGUN EL RANGO --> EL MAYOR DE LOS DOS DEL RANGO
+		Double porcentIRPF = 0.0;
+		Double importeIRPF;
+		
+			LinkedHashMap<Integer, Double> mp = ManejadorExcel.getBrutoAnual_retencion();
+			
+			 for (HashMap.Entry<Integer, Double> entry : mp.entrySet()) {
+		            //System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue());
+		    	 
+				 if(brutoAnual <= entry.getKey()) { //si el brutoAnual es menor o igual que la entrada de la tabla cojo el valor
+					 
+					 porcentIRPF = entry.getValue();
+					 nomina.setIrpf(porcentIRPF);
+					 break;
+					 
+		    	 }
+			 }
+				
+		
+		//LO APLICO AL BRUTO DEL MES Y LO RETORNO
+		importeIRPF = brutoMes*(porcentIRPF/100);
+		nomina.setImporteIrpf(importeIRPF);
+			 
+			 	
+		return importeIRPF;
+		
+		
+	}	
+	
+	
+	
+
+	
+	
+	
 
 	/////////////////////////////////////CORRECCIONES
 	private static void ordenarArrayNIFErrores() {
