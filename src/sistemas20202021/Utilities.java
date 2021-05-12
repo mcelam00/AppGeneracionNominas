@@ -350,6 +350,20 @@ public class Utilities{
 		if(trabajador.getProrrataExtra() == false && (mesGeneracion == 6 || mesGeneracion == 12)) { //no tiene prorrateo y estoy en un mes de EXTRA, a parte de la nomina basica saco la extra tambien del trabajador
 			//si no prorrateo y el mes es de extra tiene dos nominas
 			nominaExtra = new Nomina();
+						
+			nominaExtra.setAnio(nomina.getAnio());
+			nominaExtra.setMes(nomina.getMes());
+			nominaExtra.setValorProrrateo(0.0);
+			
+			nominaExtra.setSeguridadSocialTrabajador(nomina.getSeguridadSocialTrabajador());
+			nominaExtra.setImporteSeguridadSocialTrabajador(0.0);
+			nominaExtra.setDesempleoTrabajador(nomina.getDesempleoTrabajador());
+			nominaExtra.setImporteDesempleoTrabajador(0.0);
+			nominaExtra.setFormacionTrabajador(nomina.getFormacionTrabajador());
+			nominaExtra.setImporteFormacionTrabajador(0.0);
+			nominaExtra.setBaseEmpresario(0.0);
+			
+			
 			
 			nominaExtra.setImporteSalarioMes(salarioBaseMes);
 			nominaExtra.setImporteComplementoMes(complementoMes);
@@ -378,7 +392,7 @@ public class Utilities{
 			Double importeLiquidoExtra = importeBrutoExtra - IRPFExtra;
 			nominaExtra.setLiquidoNomina(importeLiquidoExtra);
 			
-		
+				
 			//la añado al set
 			trabajador.getNominas().add(nominaExtra);
 			
@@ -417,7 +431,7 @@ public class Utilities{
 		System.out.println("-Fecha de alta: "+trabajador.getFechaAlta());
 		System.out.println("-IBAN: "+ trabajador.getIban());
 		System.out.println("-Bruto anual: "+nominaExtra.getBrutoAnual());
-		System.out.println("-Fecha de la nómina: "+nominaExtra.getMes()+"/"+nominaExtra.getAnio()+"EXTRA");
+		System.out.println("-Fecha de la nómina: "+nominaExtra.getMes()+"/"+nominaExtra.getAnio()+" (EXTRA)");
 		System.out.println("-Importes a percibir:");
 		System.out.println("\t-Salario base mes: "+nominaExtra.getImporteSalarioMes());
 		System.out.println("\t-Prorrateo mes: "+nominaExtra.getValorProrrateo());
