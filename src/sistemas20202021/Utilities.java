@@ -305,35 +305,42 @@ public class Utilities{
 		Double brutoMes = 0.0;
 		
 		if(!trabajador.getProrrataExtra()) {
-			//Si la nomina NO es prorrateada el if salta la parte de sumarle 1/6 de la siguiente nomina extra
-			//el valor de prorrateo será la inicializacion del double a 0
+			//como asumimos que siempre se calcula como prorrateada, para la base se pone el bruto igual que si estuviera porque hay que pasarle por adelantado sobre ella los descuentos para sisarle lo que queda a deber por no pagarlos en la extra
 			nomina.setBaseEmpresario(salarioBaseMes + complementoMes + importeTrienios + nomina.getValorProrrateo());
-			nomina.setValorProrrateo(0.0);
-			brutoMes = salarioBaseMes + complementoMes + importeTrienios + nomina.getValorProrrateo(); //si tiene prorrateo y entró en el if anterior, sino suma 0
+			nomina.setValorProrrateo(0.0); //para calcular el bruto que se pinta en la nomina que no incluye el prorrateo
+			brutoMes = salarioBaseMes + complementoMes + importeTrienios + nomina.getValorProrrateo(); 
 			nomina.setBrutoNomina(brutoMes);
 			
-			Double valorARestarDescuentos = calcularDescuentos(nomina.getBaseEmpresario());
+			Double valorARestarDescuentos = calcularDescuentosTrabajador(nomina.getBaseEmpresario());
 			Double IRPF = calcularIRPF(brutoMes, nomina, fechaAlta, anioGeneracion, trabajador);
 			
 			
 			Double liquidoNomina = brutoMes-valorARestarDescuentos-IRPF;
 			nomina.setLiquidoNomina(liquidoNomina);
 			
+			Double totalEmpresario = calcularDescuentosEmpresario(nomina.getBaseEmpresario());
+			
+			nomina.setCosteTotalEmpresario(nomina.getBrutoNomina()+totalEmpresario); //bruto nomina mas los descuentos del empresario sumados
+			//es la suma desc empresario + el bruto de la nomina 
 			
 		}else {
 			
 			
-			brutoMes = salarioBaseMes + complementoMes + importeTrienios + nomina.getValorProrrateo(); //si tiene prorrateo y entró en el if anterior, sino suma 0
+			brutoMes = salarioBaseMes + complementoMes + importeTrienios + nomina.getValorProrrateo();
 			nomina.setBrutoNomina(brutoMes);
 			
-			Double valorARestarDescuentos = calcularDescuentos(brutoMes);
+			nomina.setBaseEmpresario(brutoMes); //el bruto incluyendo el prorrateo adelantado es la base para este caso (son lo mismo)
+			
+			Double valorARestarDescuentos = calcularDescuentosTrabajador(nomina.getBaseEmpresario());
 			Double IRPF = calcularIRPF(brutoMes, nomina, fechaAlta, anioGeneracion, trabajador);
 			
-			nomina.setBaseEmpresario(brutoMes);
 			
 			Double liquidoNomina = brutoMes-valorARestarDescuentos-IRPF;
 			nomina.setLiquidoNomina(liquidoNomina);
-
+			
+			Double totalEmpresario = calcularDescuentosEmpresario(nomina.getBaseEmpresario());
+			nomina.setCosteTotalEmpresario(nomina.getBrutoNomina()+totalEmpresario); //bruto nomina mas los descuentos del empresario sumados
+			//es la suma desc empresario + el bruto de la nomina 
 		}
 		
 				
@@ -355,6 +362,8 @@ public class Utilities{
 			nominaExtra.setMes(nomina.getMes());
 			nominaExtra.setValorProrrateo(0.0);
 			
+			/**Parte descuentos trabajador nomina Extra**/
+			
 			nominaExtra.setSeguridadSocialTrabajador(nomina.getSeguridadSocialTrabajador());
 			nominaExtra.setImporteSeguridadSocialTrabajador(0.0);
 			nominaExtra.setDesempleoTrabajador(nomina.getDesempleoTrabajador());
@@ -362,6 +371,19 @@ public class Utilities{
 			nominaExtra.setFormacionTrabajador(nomina.getFormacionTrabajador());
 			nominaExtra.setImporteFormacionTrabajador(0.0);
 			nominaExtra.setBaseEmpresario(0.0);
+			
+			/**Parte descuentos Empresario nomina Extra**/
+			
+			nominaExtra.setSeguridadSocialEmpresario(nomina.getSeguridadSocialEmpresario());
+			nominaExtra.setImporteSeguridadSocialEmpresario(0.0);
+			nominaExtra.setFogasaempresario(nomina.getFogasaempresario());
+			nominaExtra.setImporteFogasaempresario(0.0);
+			nominaExtra.setDesempleoEmpresario(nomina.getDesempleoEmpresario());
+			nominaExtra.setImporteDesempleoEmpresario(0.0);
+			nominaExtra.setFormacionEmpresario(nomina.getFormacionEmpresario());
+			nominaExtra.setImporteFormacionEmpresario(0.0);
+			nominaExtra.setAccidentesTrabajoEmpresario(nomina.getAccidentesTrabajoEmpresario());
+			nominaExtra.setImporteAccidentesTrabajoEmpresario(0.0);
 			
 			
 			
@@ -392,6 +414,7 @@ public class Utilities{
 			Double importeLiquidoExtra = importeBrutoExtra - IRPFExtra;
 			nominaExtra.setLiquidoNomina(importeLiquidoExtra);
 			
+			nominaExtra.setCosteTotalEmpresario(nominaExtra.getBrutoNomina()+ 0.0); //es la suma desc empresario que es 0 para la extra + el bruto de la nomina 
 				
 			//la añado al set
 			trabajador.getNominas().add(nominaExtra);
@@ -400,6 +423,7 @@ public class Utilities{
 		}
 
 		
+		/**Pintamos los resultados por consola**/
 		
 		System.out.println("---------------------");
 		System.out.println("-"+trabajador.getEmpresas().getNombre() + " (" + trabajador.getEmpresas().getCif()+")");
@@ -422,29 +446,53 @@ public class Utilities{
 		System.out.println("-Total ingresos: "+nomina.getBrutoNomina());
 		System.out.println("-Total deducciones: "+(nomina.getImporteSeguridadSocialTrabajador()+nomina.getImporteDesempleoTrabajador()+nomina.getImporteFormacionTrabajador()+nomina.getImporteIrpf()));
 		System.out.println("-Liquido a percibir: "+nomina.getLiquidoNomina());
+		System.out.println("-Pagos empresario:");
+		System.out.println("\tBASE empresario: "+nomina.getBaseEmpresario());
+		System.out.println("\tContingencias generales: "+nomina.getSeguridadSocialEmpresario()+"%\t"+nomina.getImporteSeguridadSocialEmpresario());
+		System.out.println("\tDesempleo: "+nomina.getDesempleoEmpresario()+"%\t"+nomina.getImporteDesempleoEmpresario());
+		System.out.println("\tFormacion: "+nomina.getFormacionEmpresario()+"%\t"+nomina.getImporteFormacionEmpresario());
+		System.out.println("\tAccidentes: "+nomina.getAccidentesTrabajoEmpresario()+"%\t"+nomina.getImporteAccidentesTrabajoEmpresario());
+		System.out.println("\tFOGASA: "+nomina.getFogasaempresario()+"%\t"+nomina.getImporteFogasaempresario());
+		System.out.println("\tTotal empresario: "+(nomina.getImporteSeguridadSocialEmpresario()+nomina.getImporteDesempleoEmpresario()+nomina.getImporteFormacionEmpresario()+nomina.getImporteAccidentesTrabajoEmpresario()+nomina.getImporteFogasaempresario()));
+		System.out.println("-Coste total trabajador:"+nomina.getCosteTotalEmpresario());//total que le cuesta el trabajador al empresario
 
+
+		/**si el trabajador tiene 2 nominas (no prorrateada)**/
+		
 		if (trabajador.getNominas().size() == 2) {
-		System.out.println("---------------------");
-		System.out.println("-"+trabajador.getEmpresas().getNombre() + " (" + trabajador.getEmpresas().getCif()+")");
-		System.out.println("-"+trabajador.getNombre()+" "+trabajador.getApellido1()+" "+ trabajador.getApellido2()+ " (" +trabajador.getNifnie()+")");
-		System.out.println("-Categoría: "+ trabajador.getCategorias().getNombreCategoria());
-		System.out.println("-Fecha de alta: "+trabajador.getFechaAlta());
-		System.out.println("-IBAN: "+ trabajador.getIban());
-		System.out.println("-Bruto anual: "+nominaExtra.getBrutoAnual());
-		System.out.println("-Fecha de la nómina: "+nominaExtra.getMes()+"/"+nominaExtra.getAnio()+" (EXTRA)");
-		System.out.println("-Importes a percibir:");
-		System.out.println("\t-Salario base mes: "+nominaExtra.getImporteSalarioMes());
-		System.out.println("\t-Prorrateo mes: "+nominaExtra.getValorProrrateo());
-		System.out.println("\t-Complemento mes: "+nominaExtra.getImporteComplementoMes());
-		System.out.println("\t-Antigüedad mes: "+nominaExtra.getImporteTrienios());
-		System.out.println("-Descuentos trabajador:");
-		System.out.println("\t-Contingencias generales: "+nominaExtra.getSeguridadSocialTrabajador()+"% de "+nominaExtra.getBaseEmpresario()+"\t"+nominaExtra.getImporteSeguridadSocialTrabajador());
-		System.out.println("\t-Desempleo: "+nominaExtra.getDesempleoTrabajador()+"% de "+nominaExtra.getBaseEmpresario()+"\t"+nominaExtra.getImporteDesempleoTrabajador());
-		System.out.println("\t-Cuota formación: "+nominaExtra.getFormacionTrabajador()+"% de "+nominaExtra.getBaseEmpresario()+"\t"+nominaExtra.getImporteFormacionTrabajador());
-		System.out.println("\t-IRPF: "+nominaExtra.getIrpf()+"% de "+nominaExtra.getBrutoNomina()+"\t"+nominaExtra.getImporteIrpf());
-		System.out.println("-Total ingresos: "+nominaExtra.getBrutoNomina());
-		System.out.println("-Total deducciones: "+(nominaExtra.getImporteSeguridadSocialTrabajador()+nominaExtra.getImporteDesempleoTrabajador()+nominaExtra.getImporteFormacionTrabajador()+nominaExtra.getImporteIrpf()));
-		System.out.println("-Liquido a percibir: "+nominaExtra.getLiquidoNomina());
+			
+			System.out.println("---------------------");
+			System.out.println("-"+trabajador.getEmpresas().getNombre() + " (" + trabajador.getEmpresas().getCif()+")");
+			System.out.println("-"+trabajador.getNombre()+" "+trabajador.getApellido1()+" "+ trabajador.getApellido2()+ " (" +trabajador.getNifnie()+")");
+			System.out.println("-Categoría: "+ trabajador.getCategorias().getNombreCategoria());
+			System.out.println("-Fecha de alta: "+trabajador.getFechaAlta());
+			System.out.println("-IBAN: "+ trabajador.getIban());
+			System.out.println("-Bruto anual: "+nominaExtra.getBrutoAnual());
+			System.out.println("-Fecha de la nómina: "+nominaExtra.getMes()+"/"+nominaExtra.getAnio()+" (EXTRA)");
+			System.out.println("-Importes a percibir:");
+			System.out.println("\t-Salario base mes: "+nominaExtra.getImporteSalarioMes());
+			System.out.println("\t-Prorrateo mes: "+nominaExtra.getValorProrrateo());
+			System.out.println("\t-Complemento mes: "+nominaExtra.getImporteComplementoMes());
+			System.out.println("\t-Antigüedad mes: "+nominaExtra.getImporteTrienios());
+			System.out.println("-Descuentos trabajador:");
+			System.out.println("\t-Contingencias generales: "+nominaExtra.getSeguridadSocialTrabajador()+"% de "+nominaExtra.getBaseEmpresario()+"\t"+nominaExtra.getImporteSeguridadSocialTrabajador());
+			System.out.println("\t-Desempleo: "+nominaExtra.getDesempleoTrabajador()+"% de "+nominaExtra.getBaseEmpresario()+"\t"+nominaExtra.getImporteDesempleoTrabajador());
+			System.out.println("\t-Cuota formación: "+nominaExtra.getFormacionTrabajador()+"% de "+nominaExtra.getBaseEmpresario()+"\t"+nominaExtra.getImporteFormacionTrabajador());
+			System.out.println("\t-IRPF: "+nominaExtra.getIrpf()+"% de "+nominaExtra.getBrutoNomina()+"\t"+nominaExtra.getImporteIrpf());
+			System.out.println("-Total ingresos: "+nominaExtra.getBrutoNomina());
+			System.out.println("-Total deducciones: "+(nominaExtra.getImporteSeguridadSocialTrabajador()+nominaExtra.getImporteDesempleoTrabajador()+nominaExtra.getImporteFormacionTrabajador()+nominaExtra.getImporteIrpf()));
+			System.out.println("-Liquido a percibir: "+nominaExtra.getLiquidoNomina());
+			System.out.println("-Pagos empresario:");
+			System.out.println("\tBASE empresario: "+nominaExtra.getBaseEmpresario());
+			System.out.println("\tContingencias generales: "+nominaExtra.getSeguridadSocialEmpresario()+"%\t"+nominaExtra.getImporteSeguridadSocialEmpresario());
+			System.out.println("\tDesempleo: "+nominaExtra.getDesempleoEmpresario()+"%\t"+nominaExtra.getImporteDesempleoEmpresario());
+			System.out.println("\tFormacion: "+nominaExtra.getFormacionEmpresario()+"%\t"+nominaExtra.getImporteFormacionEmpresario());
+			System.out.println("\tAccidentes: "+nominaExtra.getAccidentesTrabajoEmpresario()+"%\t"+nominaExtra.getImporteAccidentesTrabajoEmpresario());
+			System.out.println("\tFOGASA: "+nominaExtra.getFogasaempresario()+"%\t"+nominaExtra.getImporteFogasaempresario());
+			System.out.println("\tTotal empresario: "+(nominaExtra.getImporteSeguridadSocialEmpresario()+nominaExtra.getImporteDesempleoEmpresario()+nominaExtra.getImporteFormacionEmpresario()+nominaExtra.getImporteAccidentesTrabajoEmpresario()+nominaExtra.getImporteFogasaempresario()));
+			System.out.println("-Coste total trabajador:"+nominaExtra.getCosteTotalEmpresario());//total que le cuesta el trabajador al empresario
+
+		
 		}
 	
 		
@@ -468,15 +516,69 @@ public class Utilities{
 	}
 	
 	
+	private static Double calcularDescuentosEmpresario(Double baseEmpresario) {
+		
+		//Cuota Obrera General
+			//entrada de la tabla a la nomina
+		Double porcentSegSoc = ManejadorExcel.getDescuentos().get("Contingencias comunes EMPRESARIO");
+		nomina.setSeguridadSocialEmpresario(porcentSegSoc);
+		
+		Double importeSegSoc = baseEmpresario*(porcentSegSoc/100);
+						
+		nomina.setImporteSeguridadSocialEmpresario(importeSegSoc);		
+
+		//fogasa del empresario
+			//entrada de la tabla a la nomina
+		Double porcentFogasa = ManejadorExcel.getDescuentos().get("Fogasa EMPRESARIO");
+		nomina.setFogasaempresario(porcentFogasa);
+		
+		Double importeFogasa = baseEmpresario*(porcentFogasa/100);
+						
+		nomina.setImporteFogasaempresario(importeFogasa);
+				
+		
+		//Desempleo
+			//entrada de la tabla a la nomina
+		Double porcentDes = ManejadorExcel.getDescuentos().get("Desempleo EMPRESARIO");
+		nomina.setDesempleoEmpresario(porcentDes);
+				
+		Double importeDes = baseEmpresario*(porcentDes/100);
+							
+		nomina.setImporteDesempleoEmpresario(importeDes);		
+				
+		
+		//Formacion
+			//entrada de la tabla a la nomina
+		Double porcentForm = ManejadorExcel.getDescuentos().get("Formacion EMPRESARIO");
+		nomina.setFormacionEmpresario(porcentForm);
+				
+		Double importeForm = baseEmpresario*(porcentForm/100);
+							
+		nomina.setImporteFormacionEmpresario(importeForm);			
+			
+		
+		//Accidentes trabajo empresario
+			//entrada de la tabla a la nomina
+		Double porcentAcc = ManejadorExcel.getDescuentos().get("Accidentes trabajo EMPRESARIO");
+		nomina.setAccidentesTrabajoEmpresario(porcentForm);
+				
+		Double importeAcc = baseEmpresario*(porcentAcc/100);
+							
+		nomina.setImporteAccidentesTrabajoEmpresario(importeAcc);			
+			
+		
+		return (importeSegSoc+ importeDes +importeFogasa+ + importeForm + importeAcc);
+			
+	}
 	
-	private static Double calcularDescuentos(Double brutoMes) {
+	private static Double calcularDescuentosTrabajador(Double base) {
 		
 		//Cuota Obrera General
 			//entrada de la tabla a la nomina
 		Double porcentSegSoc = ManejadorExcel.getDescuentos().get("Cuota obrera general TRABAJADOR");
 		nomina.setSeguridadSocialTrabajador(porcentSegSoc);
 		
-		Double importeSegSoc = brutoMes*(porcentSegSoc/100);
+		Double importeSegSoc = base*(porcentSegSoc/100);
 						
 		nomina.setImporteSeguridadSocialTrabajador(importeSegSoc);		
 				
@@ -486,7 +588,7 @@ public class Utilities{
 		Double porcentDes = ManejadorExcel.getDescuentos().get("Cuota desempleo TRABAJADOR");
 		nomina.setDesempleoTrabajador(porcentDes);
 				
-		Double importeDes = brutoMes*(porcentDes/100);
+		Double importeDes = base*(porcentDes/100);
 							
 		nomina.setImporteDesempleoTrabajador(importeDes);		
 				
@@ -496,7 +598,7 @@ public class Utilities{
 		Double porcentForm = ManejadorExcel.getDescuentos().get("Cuota formación TRABAJADOR");
 		nomina.setFormacionTrabajador(porcentForm);
 				
-		Double importeForm = brutoMes*(porcentForm/100);
+		Double importeForm = base*(porcentForm/100);
 							
 		nomina.setImporteFormacionTrabajador(importeForm);			
 			
