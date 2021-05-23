@@ -45,7 +45,9 @@ public class Sistemas20202021 {
     	ManejadorExcel a = new ManejadorExcel();
     	a.cargarHojaExcel();
     	
-    	 
+    	a.corregirExcelExistente(Utilities.getTrabajadores()); //corregir la hoja excel
+    	
+    	
     	
     	/*
     	
