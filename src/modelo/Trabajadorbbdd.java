@@ -5,6 +5,7 @@ package modelo;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import javax.persistence.Transient;
 
 import com.sun.org.apache.xpath.internal.operations.Bool;
 
@@ -16,9 +17,14 @@ public class Trabajadorbbdd  implements java.io.Serializable {
 
      private int idTrabajador;
      
-     private transient boolean prorrataExtra;//si la nomina prorrateada o no
-     private transient int antiguedad; //numero de trienios
-     private transient boolean seHaceNomina = true; //si se hace la nomina por fecha o no (porque no esta contratado aun)
+     @Transient
+     private boolean prorrataExtra;//si la nomina prorrateada o no
+     
+     @Transient
+     private int antiguedad; //numero de trienios
+     
+     @Transient
+     private boolean seHaceNomina = true; //si se hace la nomina por fecha o no (porque no esta contratado aun)
 
 
      
