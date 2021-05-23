@@ -560,7 +560,7 @@ public class Utilities{
 		//Accidentes trabajo empresario
 			//entrada de la tabla a la nomina
 		Double porcentAcc = ManejadorExcel.getDescuentos().get("Accidentes trabajo EMPRESARIO");
-		nomina.setAccidentesTrabajoEmpresario(porcentForm);
+		nomina.setAccidentesTrabajoEmpresario(porcentAcc);
 				
 		Double importeAcc = baseEmpresario*(porcentAcc/100);
 							
