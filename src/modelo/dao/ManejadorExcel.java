@@ -157,7 +157,9 @@ public class ManejadorExcel {
 						categoria.setComplementoCategoria(categoria_complementos.get(categoria.getNombreCategoria())); 
 					}	
 						
-					trabajador.setFechaAlta(row.getCell(3).getDateCellValue());
+					if (formatter.formatCellValue(row.getCell(3)) != "") {
+						trabajador.setFechaAlta(row.getCell(3).getDateCellValue());				
+					}
 
 					trabajador.setApellido1(formatter.formatCellValue(row.getCell(4)));
 					trabajador.setApellido2(formatter.formatCellValue(row.getCell(5)));
