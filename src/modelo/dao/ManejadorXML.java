@@ -15,8 +15,8 @@ import modelo.Trabajadorbbdd;
 
 public class ManejadorXML {
 
-	private String RUTA_ERRORESXML = "./resources/Errores.xml"; 
-	private String RUTA_ERRORESCCCXML = "./resources/ErroresCCC.xml"; 
+	private String RUTA_ERRORESXML = "resources/Errores.xml"; 
+	private String RUTA_ERRORESCCCXML = "resources/ErroresCCC.xml"; 
 
 	
 
@@ -25,10 +25,10 @@ public class ManejadorXML {
 		
 		 try {
 
-		        Element trabajadores = new Element("Trabajadores"); //creamos el nodo raíz trabajadores
+		        Element trabajadores = new Element("Trabajadores"); //creamos el nodo raï¿½z trabajadores
 		        Document documento = new Document(trabajadores);
 		        
-		        for (Trabajadorbbdd t : trabajadoresNifErroneo) { //recorremos los trabajadores erroneos a añadir
+		        for (Trabajadorbbdd t : trabajadoresNifErroneo) { //recorremos los trabajadores erroneos a aï¿½adir
 					
 		        	 Element trabajador = new Element("Trabajador");
 				     trabajador.setAttribute(new Attribute("id", String.valueOf(t.getIdTrabajador()+1))); //le sumamos 1 porque el id lo contamos desde 1 y la excel en la fila 1 tiene los titulos
@@ -66,10 +66,10 @@ public class ManejadorXML {
 		
 		 try {
 
-		        Element cuentas = new Element("Cuentas"); //creamos el nodo raíz 
+		        Element cuentas = new Element("Cuentas"); //creamos el nodo raï¿½z 
 		        Document documento = new Document(cuentas);
 		        
-		        for (Trabajadorbbdd t : trabajadoresCCCErroneas) { //recorremos los trabajadores erroneos a añadir
+		        for (Trabajadorbbdd t : trabajadoresCCCErroneas) { //recorremos los trabajadores erroneos a aï¿½adir
 					
 		        	 Element cuenta = new Element("Cuenta");
 		        	 cuenta.setAttribute(new Attribute("id", String.valueOf(t.getIdTrabajador()+1))); //le sumamos 1 porque el id lo contamos desde 1 y la excel en la fila 1 tiene los titulos

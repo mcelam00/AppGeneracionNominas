@@ -38,7 +38,7 @@ public class Nomina  implements java.io.Serializable {
      private Double importeDesempleoTrabajador;
      private Double formacionTrabajador;
      private Double importeFormacionTrabajador;
-     private Double brutoNomina;
+     private Double brutoNomina;//bruto mes
      private Double liquidoNomina;
      private Double costeTotalEmpresario;
 

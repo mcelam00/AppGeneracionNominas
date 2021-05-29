@@ -86,7 +86,9 @@ public class ManejadorExcel {
 
 		ArrayList<Trabajadorbbdd> trabajadores = new ArrayList<Trabajadorbbdd>();
 		DataFormatter formatter = new DataFormatter();
+                int contadorIdCategoría = 0;
 
+                
 		try {
 			FileInputStream libro = new FileInputStream(RUTA_EXCEL);
 			XSSFWorkbook workbook = new XSSFWorkbook(libro);
@@ -146,11 +148,11 @@ public class ManejadorExcel {
 					Categorias categoria = new Categorias();
 					Empresas empresa = new Empresas();
 
-					//Mas adelante meter todos los atributos de trabajador 
 					empresa.setNombre(formatter.formatCellValue(row.getCell(0)));
 					empresa.setCif(formatter.formatCellValue(row.getCell(1)));
-					
+                                        
 					categoria.setNombreCategoria(formatter.formatCellValue(row.getCell(2)));
+                                        categoria.setIdCategoria(++contadorIdCategoría);
 
 					if(formatter.formatCellValue(row.getCell(2)) != "") {
 						categoria.setSalarioBaseCategoria(categoria_salarioBase.get(categoria.getNombreCategoria()));
