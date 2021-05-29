@@ -33,10 +33,19 @@ import com.sun.glass.ui.Size;
 
 import modelo.Categorias;
 import modelo.Empresas;
+import modelo.HibernateUtil;
 import modelo.Nomina;
 import modelo.Trabajadorbbdd;
+import modelo.dao.CategoriasDAO;
+import modelo.dao.EmpresasDAO;
 import modelo.dao.ManejadorExcel;
 import modelo.dao.ManejadorXML;
+import modelo.dao.NominaDAO;
+import modelo.dao.TrabajadorbbddDAO;
+import org.hibernate.Hibernate;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 
 public class Utilities{
 
@@ -84,15 +93,21 @@ public class Utilities{
 
 		}
 
-
-
+                 
 		ManejadorXML x = new ManejadorXML();
 		x.escribirErroresXML(NIFErrores);
 		x.escribirErroresCCCXML(CCCErroneas);
-
+                almacenarEnBBDD();
 
 	}
-	//////////////////////////////////////CALCULOS
+	
+        
+        
+            
+        
+        
+        
+//////////////////////////////////////CALCULOS/////////////////////////////////////////////////////////////////////
 
 	private static void calcularAntiguedad(Trabajadorbbdd t){
 
@@ -102,14 +117,14 @@ public class Utilities{
 
 			String[] d1 = date.split("/");
 			int md1 = Integer.valueOf(d1[1]);//mes fecha introducida
-			int yd1 = Integer.valueOf(d1[2]);//aÒo fecha introducida
+			int yd1 = Integer.valueOf(d1[2]);//a√±o fecha introducida
 
 			Format formatter = new SimpleDateFormat("dd-MM-yyyy");
 			String s = formatter.format(t.getFechaAlta());
 
 			String[] d2 = s.split("-");
 			int md2 = Integer.valueOf(d2[1]);//mes fecha alta
-			int yd2 = Integer.valueOf(d2[2]);//aÒo fecha alta
+			int yd2 = Integer.valueOf(d2[2]);//a√±o fecha alta
 
 			if (((yd2 > yd1)) || ((md2 > md1) && (yd2 >= yd1))) {
 				t.setSeHaceNomina(false);
@@ -120,23 +135,23 @@ public class Utilities{
 			float trienios = years/3;
 
 
-			if(years % 3 == 0) { //el aÒo es multiplo de los trienios y estoy en el aÒo que hago el trienio
+			if(years % 3 == 0) { //el a√±o es multiplo de los trienios y estoy en el a√±o que hago el trienio
 
 				//puedo haberlo hecho o no
 				if(md1 > md2) { 
-					//pasÈ el mes y ya lo estoy cobrando
+					//pas√© el mes y ya lo estoy cobrando
 
-				}else { //a˙n no lo pasÈ y cobro el anterior
+				}else { //a√∫n no lo pas√© y cobro el anterior
 					trienios = trienios -1;
 
 				}
 
 			}else{
-				//no me toca hacer ningun trienio este aÒo, o lo hice ya, o lo harÈ en los aÒos futuros
+				//no me toca hacer ningun trienio este a√±o, o lo hice ya, o lo har√© en los a√±os futuros
 
 			}
 
-			if(trienios < 0) { //la resta de years sale menor a 3, por tanto dividendo < divisor y el modulo salta 0 (no hemos cumplido tres aÒos a˙n en la empresa y puede salir -1 si el mes es menor o igual al de cumplimiento del trienio)
+			if(trienios < 0) { //la resta de years sale menor a 3, por tanto dividendo < divisor y el modulo salta 0 (no hemos cumplido tres a√±os a√∫n en la empresa y puede salir -1 si el mes es menor o igual al de cumplimiento del trienio)
 				trienios = 0;
 			}
 
@@ -157,37 +172,37 @@ public class Utilities{
 		fechaGeneracion = entrada;
 	}
 
-	private static int calcularTrienioPorMes(int md1, int anioGeneracion , String fechaAlta){//devuelve el trienio de cada mes del aÒo
+	private static int calcularTrienioPorMes(int md1, int anioGeneracion , String fechaAlta){//devuelve el trienio de cada mes del a√±o
 
 
-		int yd1 = anioGeneracion;//aÒo introducido por consola
+		int yd1 = anioGeneracion;//a√±o introducido por consola
 
 
 		String[] d2 = fechaAlta.split("-");
 		int md2 = Integer.valueOf(d2[1]);//mes fecha alta
-		int yd2 = Integer.valueOf(d2[2]);//aÒo fecha alta
+		int yd2 = Integer.valueOf(d2[2]);//a√±o fecha alta
 
 		int years = yd1 - yd2;
 		float trienios = years/3;
 
 
-		if(years % 3 == 0) { //el aÒo es multiplo de los trienios y estoy en el aÒo que hago el trienio
+		if(years % 3 == 0) { //el a√±o es multiplo de los trienios y estoy en el a√±o que hago el trienio
 
 			//puedo haberlo hecho o no
 			if(md1 > md2) { 
-				//pasÈ el mes y ya lo estoy cobrando
+				//pas√© el mes y ya lo estoy cobrando
 
-			}else { //a˙n no lo pasÈ y cobro el anterior
+			}else { //a√∫n no lo pas√© y cobro el anterior
 				trienios = trienios -1;
 
 			}
 
 		}else{
-			//no me toca hacer ningun trienio este aÒo, o lo hice ya, o lo harÈ en los aÒos futuros
+			//no me toca hacer ningun trienio este a√±o, o lo hice ya, o lo har√© en los a√±os futuros
 
 		}
 
-		if(trienios < 0) { //la resta de years sale menor a 3, por tanto dividendo < divisor y el modulo salta 0 (no hemos cumplido tres aÒos a˙n en la empresa y puede salir -1 si el mes es menor o igual al de cumplimiento del trienio)
+		if(trienios < 0) { //la resta de years sale menor a 3, por tanto dividendo < divisor y el modulo salta 0 (no hemos cumplido tres a√±os a√∫n en la empresa y puede salir -1 si el mes es menor o igual al de cumplimiento del trienio)
 			trienios = 0;
 		}
 
@@ -207,7 +222,7 @@ public class Utilities{
 		Format formatter = new SimpleDateFormat("dd-MM-yyyy");
 		String f = formatter.format(fechaAlta);
 
-		if (year == Integer.valueOf(f.substring(6))) {//para los que no han estado un aÒo entero
+		if (year == Integer.valueOf(f.substring(6))) {//para los que no han estado un a√±o entero
 
 		}
 
@@ -225,19 +240,11 @@ public class Utilities{
 		}
 		/*
 			System.out.println(t.getNombre()+" "+t.getApellido1() + "--"+ importeTrienios);
-
-
 			brutoAnual = t.getCategorias().getSalarioBaseCategoria()+t.getCategorias().getComplementoCategoria()+importeTrienios; 
-
-
 			System.out.println(t.getNombre()+" "+t.getApellido1() + "--"+ brutoAnual);
-
-
 			//nomina.setImporteTrienios(ManejadorExcel.getnTrienio_importeBruto().get(nomina.getNumeroTrienios()));
-
 			//salario base + complementos + trienios (si los tiene)
 			//nomina.setBrutoAnual(t.getCategorias().getSalarioBaseCategoria() + t.getCategorias().getComplementoCategoria() + nomina.getImporteTrienios());
-
 		 */
 
 		return importeTrienios;
@@ -250,7 +257,7 @@ public class Utilities{
 		String fechaGen = "01/"+fechaGeneracion;
 		String[] d1 = fechaGen.split("/");
 		int mesGeneracion = Integer.valueOf(d1[1]);//mes fecha introducida
-		int anioGeneracion = Integer.valueOf(d1[2]);//aÒo fecha introducida
+		int anioGeneracion = Integer.valueOf(d1[2]);//a√±o fecha introducida
 
 		Date fechaAlta = trabajador.getFechaAlta();
 		Format formatter = new SimpleDateFormat("dd-MM-yyyy");
@@ -306,7 +313,7 @@ public class Utilities{
 
 
 		}else {
-			//ESPECIAL Es el caso de Diciembre que le corresponde la extra de Junio del sisguiente aÒo
+			//ESPECIAL Es el caso de Diciembre que le corresponde la extra de Junio del sisguiente a√±o
 
 			Double importeTrieniosExtra = recalculoTrieniosExtra(6,anioGeneracion+1, fechaAltaTrab);
 			Double importeBrutoExtra = salarioBaseMes + complementoMes + importeTrieniosExtra;
@@ -367,8 +374,8 @@ public class Utilities{
 
 
 		//si prorrateo (o no prorrateo pero el mes no es de extra) grabo una
-
-		trabajador.getNominas().add(nomina);
+                nomina.setTrabajadorbbdd(trabajador); //le ponemos el trabajador a la nomina normal
+                trabajador.getNominas().add(nomina);
 
 		sacarPdf(trabajador, nomina, false);
 
@@ -437,7 +444,8 @@ public class Utilities{
 
 			nominaExtra.setCosteTotalEmpresario(nominaExtra.getBrutoNomina()+ 0.0); //es la suma desc empresario que es 0 para la extra + el bruto de la nomina 
 
-			//la aÒado al set
+			//la a√±ado al set y le ponemos el trabajador
+                        nominaExtra.setTrabajadorbbdd(trabajador);
 			trabajador.getNominas().add(nominaExtra);
 			sacarPdf(trabajador, nominaExtra, true);
 
@@ -450,20 +458,20 @@ public class Utilities{
 		System.out.println("---------------------");
 		System.out.println("-"+trabajador.getEmpresas().getNombre() + " (" + trabajador.getEmpresas().getCif()+")");
 		System.out.println("-"+trabajador.getNombre()+" "+trabajador.getApellido1()+" "+ trabajador.getApellido2()+ " (" +trabajador.getNifnie()+")");
-		System.out.println("-CategorÌa: "+ trabajador.getCategorias().getNombreCategoria());
+		System.out.println("-Categor√≠a: "+ trabajador.getCategorias().getNombreCategoria());
 		System.out.println("-Fecha de alta: "+trabajador.getFechaAlta());
 		System.out.println("-IBAN: "+ trabajador.getIban());
 		System.out.println("-Bruto anual: "+nomina.getBrutoAnual());
-		System.out.println("-Fecha de la nÛmina: "+nomina.getMes()+"/"+nomina.getAnio());
+		System.out.println("-Fecha de la n√≥mina: "+nomina.getMes()+"/"+nomina.getAnio());
 		System.out.println("-Importes a percibir:");
 		System.out.println("\t-Salario base mes: "+nomina.getImporteSalarioMes());
 		System.out.println("\t-Prorrateo mes: "+nomina.getValorProrrateo());
 		System.out.println("\t-Complemento mes: "+nomina.getImporteComplementoMes());
-		System.out.println("\t-Antig¸edad mes: "+nomina.getImporteTrienios());
+		System.out.println("\t-Antig√ºedad mes: "+nomina.getImporteTrienios());
 		System.out.println("-Descuentos trabajador:");
 		System.out.println("\t-Contingencias generales: "+nomina.getSeguridadSocialTrabajador()+"% de "+nomina.getBaseEmpresario()+"\t"+nomina.getImporteSeguridadSocialTrabajador());
 		System.out.println("\t-Desempleo: "+nomina.getDesempleoTrabajador()+"% de "+nomina.getBaseEmpresario()+"\t"+nomina.getImporteDesempleoTrabajador());
-		System.out.println("\t-Cuota formaciÛn: "+nomina.getFormacionTrabajador()+"% de "+nomina.getBaseEmpresario()+"\t"+nomina.getImporteFormacionTrabajador());
+		System.out.println("\t-Cuota formaci√≥n: "+nomina.getFormacionTrabajador()+"% de "+nomina.getBaseEmpresario()+"\t"+nomina.getImporteFormacionTrabajador());
 		System.out.println("\t-IRPF: "+nomina.getIrpf()+"% de "+nomina.getBrutoNomina()+"\t"+nomina.getImporteIrpf());
 		System.out.println("-Total ingresos: "+nomina.getBrutoNomina());
 		System.out.println("-Total deducciones: "+(nomina.getImporteSeguridadSocialTrabajador()+nomina.getImporteDesempleoTrabajador()+nomina.getImporteFormacionTrabajador()+nomina.getImporteIrpf()));
@@ -486,20 +494,20 @@ public class Utilities{
 			System.out.println("---------------------");
 			System.out.println("-"+trabajador.getEmpresas().getNombre() + " (" + trabajador.getEmpresas().getCif()+")");
 			System.out.println("-"+trabajador.getNombre()+" "+trabajador.getApellido1()+" "+ trabajador.getApellido2()+ " (" +trabajador.getNifnie()+")");
-			System.out.println("-CategorÌa: "+ trabajador.getCategorias().getNombreCategoria());
+			System.out.println("-Categor√≠a: "+ trabajador.getCategorias().getNombreCategoria());
 			System.out.println("-Fecha de alta: "+trabajador.getFechaAlta());
 			System.out.println("-IBAN: "+ trabajador.getIban());
 			System.out.println("-Bruto anual: "+nominaExtra.getBrutoAnual());
-			System.out.println("-Fecha de la nÛmina: "+nominaExtra.getMes()+"/"+nominaExtra.getAnio()+" (EXTRA)");
+			System.out.println("-Fecha de la n√≥mina: "+nominaExtra.getMes()+"/"+nominaExtra.getAnio()+" (EXTRA)");
 			System.out.println("-Importes a percibir:");
 			System.out.println("\t-Salario base mes: "+nominaExtra.getImporteSalarioMes());
 			System.out.println("\t-Prorrateo mes: "+nominaExtra.getValorProrrateo());
 			System.out.println("\t-Complemento mes: "+nominaExtra.getImporteComplementoMes());
-			System.out.println("\t-Antig¸edad mes: "+nominaExtra.getImporteTrienios());
+			System.out.println("\t-Antig√ºedad mes: "+nominaExtra.getImporteTrienios());
 			System.out.println("-Descuentos trabajador:");
 			System.out.println("\t-Contingencias generales: "+nominaExtra.getSeguridadSocialTrabajador()+"% de "+nominaExtra.getBaseEmpresario()+"\t"+nominaExtra.getImporteSeguridadSocialTrabajador());
 			System.out.println("\t-Desempleo: "+nominaExtra.getDesempleoTrabajador()+"% de "+nominaExtra.getBaseEmpresario()+"\t"+nominaExtra.getImporteDesempleoTrabajador());
-			System.out.println("\t-Cuota formaciÛn: "+nominaExtra.getFormacionTrabajador()+"% de "+nominaExtra.getBaseEmpresario()+"\t"+nominaExtra.getImporteFormacionTrabajador());
+			System.out.println("\t-Cuota formaci√≥n: "+nominaExtra.getFormacionTrabajador()+"% de "+nominaExtra.getBaseEmpresario()+"\t"+nominaExtra.getImporteFormacionTrabajador());
 			System.out.println("\t-IRPF: "+nominaExtra.getIrpf()+"% de "+nominaExtra.getBrutoNomina()+"\t"+nominaExtra.getImporteIrpf());
 			System.out.println("-Total ingresos: "+nominaExtra.getBrutoNomina());
 			System.out.println("-Total deducciones: "+(nominaExtra.getImporteSeguridadSocialTrabajador()+nominaExtra.getImporteDesempleoTrabajador()+nominaExtra.getImporteFormacionTrabajador()+nominaExtra.getImporteIrpf()));
@@ -518,8 +526,12 @@ public class Utilities{
 		}
 
 
+               
+                
 	}
-
+      
+        
+//////////////////////////////////////SACARPDF/////////////////////////////////////////////////////////////////////
 
 	private static void sacarPdf(Trabajadorbbdd trabajador, Nomina nomina, boolean esExtra) {
 
@@ -544,7 +556,7 @@ public class Utilities{
 				cell1.add(new Paragraph(trabajador.getEmpresas().getNombre()));//nombre empresa
 				cell1.add(new Paragraph("CIF: "+trabajador.getEmpresas().getCif()));//cif empresa
 				cell1.add(new Paragraph("Avenida de la facultad - 6"));
-				cell1.add(new Paragraph("24001 LeÛn"));
+				cell1.add(new Paragraph("24001 Le√≥n"));
 				tabla1.addCell(cell1);
 
 				Cell cell2 = new Cell();
@@ -553,7 +565,7 @@ public class Utilities{
 				cell2.setTextAlignment(TextAlignment.RIGHT);
 				cell2.add(new Paragraph("IBAN: "+ trabajador.getIban()));
 				cell2.add(new Paragraph("Bruto anual: "+nomina.getBrutoAnual()));///////////*********************************
-				cell2.add(new Paragraph("CategorÌa: "+trabajador.getCategorias().getNombreCategoria()));
+				cell2.add(new Paragraph("Categor√≠a: "+trabajador.getCategorias().getNombreCategoria()));
 
 				Format formatter = new SimpleDateFormat("dd/MM/yyyy");
 				String fechaAltaTrab = formatter.format(trabajador.getFechaAlta());
@@ -596,7 +608,7 @@ public class Utilities{
 				cell4dcha.add(new Paragraph(trabajador.getNombre() + " " + trabajador.getApellido1()+ " " + trabajador.getApellido2()));//nombre completo trabajador
 				cell4dcha.add(new Paragraph("DNI: "+trabajador.getNifnie()));//dni trabajador
 				cell4dcha.add(new Paragraph("Avenida de la facultad - 6"));
-				cell4dcha.add(new Paragraph("24001 LeÛn"));
+				cell4dcha.add(new Paragraph("24001 Le√≥n"));
 
 
 				tabla2a.addCell(cell4izda);
@@ -608,7 +620,7 @@ public class Utilities{
 				Cell cell5 = new Cell();
 				cell5.setTextAlignment(TextAlignment.CENTER);
 				cell5.setPaddingTop(20);
-				cell5.add(new Paragraph("NÛmina: "+fechaAltaTrab));
+				cell5.add(new Paragraph("N√≥mina: "+fechaAltaTrab));
 
 				int dias;
 				if (nomina.getMes() == 1 || nomina.getMes() == 3 ||nomina.getMes() == 5 ||nomina.getMes() == 7 ||nomina.getMes() == 8 ||nomina.getMes() == 10 ||nomina.getMes() == 12) {
@@ -627,23 +639,23 @@ public class Utilities{
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("Cantidad")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("Imp. Unitario")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("Devengo")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("DeducciÛn")));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("Deducci√≥n")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Salario base")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(dias+" dÌas")));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(dias+" d√≠as")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getImporteSalarioMes()/dias))));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getImporteSalarioMes()))));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Prorrateo")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(dias+" dÌas")));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(dias+" d√≠as")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getValorProrrateo()/dias))));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getValorProrrateo()))));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Complemento")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(dias+" dÌas")));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(dias+" d√≠as")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getImporteComplementoMes()/dias))));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getImporteComplementoMes()))));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Antig¸edad")));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Antig√ºedad")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(nomina.getNumeroTrienios()+" Trienios")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getImporteTrienios()/dias))));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getImporteTrienios()))));
@@ -658,7 +670,7 @@ public class Utilities{
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getImporteDesempleoTrabajador()))));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Cuota formaciÛn")));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Cuota formaci√≥n")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getFormacionTrabajador())+"% de "+String.format("%.2f",nomina.getBaseEmpresario()))));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
@@ -678,7 +690,7 @@ public class Utilities{
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getBrutoNomina()))));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("LÌquido a percibir")));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("L√≠quido a percibir")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
@@ -695,13 +707,13 @@ public class Utilities{
 
 
 				Table tabla4 = new Table(2);
-				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("C·lculo empresario: BASE")));
+				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("C√°lculo empresario: BASE")));
 				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph(""+String.format("%.2f",nomina.getBaseEmpresario()))));
 				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).setPaddingRight(230).add(new Paragraph("Contingencias comunes empresario "+String.format("%.2f",nomina.getSeguridadSocialEmpresario()))));
 				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph(""+String.format("%.2f",nomina.getImporteSeguridadSocialEmpresario()))));
 				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Desempleo "+String.format("%.2f",nomina.getDesempleoEmpresario()))));
 				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph(""+String.format("%.2f",nomina.getImporteDesempleoEmpresario()))));
-				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("FormaciÛn "+String.format("%.2f",nomina.getFormacionEmpresario()))));
+				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Formaci√≥n "+String.format("%.2f",nomina.getFormacionEmpresario()))));
 				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph(""+String.format("%.2f",nomina.getImporteFormacionEmpresario()))));
 				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Accidentes de trabajo "+String.format("%.2f",nomina.getAccidentesTrabajoEmpresario()))));
 				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph(""+String.format("%.2f",nomina.getImporteAccidentesTrabajoEmpresario()))));
@@ -749,7 +761,7 @@ public class Utilities{
 				cell1.add(new Paragraph(trabajador.getEmpresas().getNombre()));//nombre empresa
 				cell1.add(new Paragraph("CIF: "+trabajador.getEmpresas().getCif()));//cif empresa
 				cell1.add(new Paragraph("Avenida de la facultad - 6"));
-				cell1.add(new Paragraph("24001 LeÛn"));
+				cell1.add(new Paragraph("24001 Le√≥n"));
 				tabla1.addCell(cell1);
 
 				Cell cell2 = new Cell();
@@ -758,7 +770,7 @@ public class Utilities{
 				cell2.setTextAlignment(TextAlignment.RIGHT);
 				cell2.add(new Paragraph("IBAN: "+ trabajador.getIban()));
 				cell2.add(new Paragraph("Bruto anual: "+nomina.getBrutoAnual()));///////////*********************************
-				cell2.add(new Paragraph("CategorÌa: "+trabajador.getCategorias().getNombreCategoria()));
+				cell2.add(new Paragraph("Categor√≠a: "+trabajador.getCategorias().getNombreCategoria()));
 
 				Format formatter = new SimpleDateFormat("dd/MM/yyyy");
 				String fechaAltaTrab = formatter.format(trabajador.getFechaAlta());
@@ -801,7 +813,7 @@ public class Utilities{
 				cell4dcha.add(new Paragraph(trabajador.getNombre() + " " + trabajador.getApellido1()+ " " + trabajador.getApellido2()));//nombre completo trabajador
 				cell4dcha.add(new Paragraph("DNI: "+trabajador.getNifnie()));//dni trabajador
 				cell4dcha.add(new Paragraph("Avenida de la facultad - 6"));
-				cell4dcha.add(new Paragraph("24001 LeÛn"));
+				cell4dcha.add(new Paragraph("24001 Le√≥n"));
 
 
 				tabla2a.addCell(cell4izda);
@@ -813,7 +825,7 @@ public class Utilities{
 				Cell cell5 = new Cell();
 				cell5.setTextAlignment(TextAlignment.CENTER);
 				cell5.setPaddingTop(20);
-				cell5.add(new Paragraph("NÛmina: "+fechaAltaTrab));
+				cell5.add(new Paragraph("N√≥mina: "+fechaAltaTrab));
 
 				int dias;
 				if (nomina.getMes() == 1 || nomina.getMes() == 3 ||nomina.getMes() == 5 ||nomina.getMes() == 7 ||nomina.getMes() == 8 ||nomina.getMes() == 10 ||nomina.getMes() == 12) {
@@ -832,23 +844,23 @@ public class Utilities{
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("Cantidad")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("Imp. Unitario")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("Devengo")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("DeducciÛn")));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("Deducci√≥n")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Salario base")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(dias+" dÌas")));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(dias+" d√≠as")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getImporteSalarioMes()/dias))));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getImporteSalarioMes()))));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Prorrateo")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(dias+" dÌas")));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(dias+" d√≠as")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getValorProrrateo()/dias))));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getValorProrrateo()))));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Complemento")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(dias+" dÌas")));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(dias+" d√≠as")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getImporteComplementoMes()/dias))));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getImporteComplementoMes()))));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Antig¸edad")));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Antig√ºedad")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(nomina.getNumeroTrienios()+" Trienios")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getImporteTrienios()/dias))));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getImporteTrienios()))));
@@ -863,7 +875,7 @@ public class Utilities{
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getImporteDesempleoTrabajador()))));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Cuota formaciÛn")));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Cuota formaci√≥n")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getFormacionTrabajador())+"% de "+String.format("%.2f",nomina.getBaseEmpresario()))));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
@@ -883,7 +895,7 @@ public class Utilities{
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getBrutoNomina()))));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("LÌquido a percibir")));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("L√≠quido a percibir")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
@@ -900,13 +912,13 @@ public class Utilities{
 
 
 				Table tabla4 = new Table(2);
-				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("C·lculo empresario: BASE")));
+				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("C√°lculo empresario: BASE")));
 				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph(""+String.format("%.2f",nomina.getBaseEmpresario()))));
 				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Contingencias comunes empresario "+String.format("%.2f",nomina.getSeguridadSocialEmpresario()))));
 				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setPaddingLeft(274).add(new Paragraph(""+String.format("%.2f",nomina.getImporteSeguridadSocialEmpresario()))));
 				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Desempleo "+String.format("%.2f",nomina.getDesempleoEmpresario()))));
 				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph(""+String.format("%.2f",nomina.getImporteDesempleoEmpresario()))));
-				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("FormaciÛn "+String.format("%.2f",nomina.getFormacionEmpresario()))));
+				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Formaci√≥n "+String.format("%.2f",nomina.getFormacionEmpresario()))));
 				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph(""+String.format("%.2f",nomina.getImporteFormacionEmpresario()))));
 				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Accidentes de trabajo "+String.format("%.2f",nomina.getAccidentesTrabajoEmpresario()))));
 				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph(""+String.format("%.2f",nomina.getImporteAccidentesTrabajoEmpresario()))));
@@ -939,18 +951,20 @@ public class Utilities{
 
 
 	}
+        
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 	private static Double recalculoTrieniosExtra(int mesDeLaExtra , int anioGeneracion, String fechaAltaTrab) {
 
 		Double importeTrieniosExtra;
 
-		int numTrieniosExtra = calcularTrienioPorMes(mesDeLaExtra,anioGeneracion, fechaAltaTrab); //calculamos n∫ de trienios en la fecha de la extra
+		int numTrieniosExtra = calcularTrienioPorMes(mesDeLaExtra,anioGeneracion, fechaAltaTrab); //calculamos n¬∫ de trienios en la fecha de la extra
 
 		if(numTrieniosExtra == 0) {
 			importeTrieniosExtra = 0.0;
 		}else {
-			importeTrieniosExtra = ManejadorExcel.getnTrienio_importeBruto().get(numTrieniosExtra); //sacamos el importe recalculado de la extra que hay que aÒadirle en 1/6 a la nomina
+			importeTrieniosExtra = ManejadorExcel.getnTrienio_importeBruto().get(numTrieniosExtra); //sacamos el importe recalculado de la extra que hay que a√±adirle en 1/6 a la nomina
 
 		}
 
@@ -1038,7 +1052,7 @@ public class Utilities{
 
 		//Formacion
 		//entrada de la tabla a la nomina
-		Double porcentForm = ManejadorExcel.getDescuentos().get("Cuota formaciÛn TRABAJADOR");
+		Double porcentForm = ManejadorExcel.getDescuentos().get("Cuota formaci√≥n TRABAJADOR");
 		nomina.setFormacionTrabajador(porcentForm);
 
 		Double importeForm = base*(porcentForm/100);
@@ -1057,25 +1071,25 @@ public class Utilities{
 		String fechaAltaTrab = formatter.format(fechaAlta);
 		String[] d2 = fechaAltaTrab.split("-");
 		int mesFechaAlta = Integer.valueOf(d2[1]);//mes fecha alta
-		int anioFechaAlta = Integer.valueOf(d2[2]);//aÒo fecha alta
+		int anioFechaAlta = Integer.valueOf(d2[2]);//a√±o fecha alta
 
 
 		//CALCULAR EL BRUTO ANUAL (venenoso)
 
 		int mesesTrabajadosAnioCurso; 
 
-		if(anioFechaAlta == anioGeneracion) { //si entro en el mismo aÒo que generamos la nomina (salvo si entro en enero, no lo ha trabajado completo)
+		if(anioFechaAlta == anioGeneracion) { //si entro en el mismo a√±o que generamos la nomina (salvo si entro en enero, no lo ha trabajado completo)
 
 			mesesTrabajadosAnioCurso = 12 - (mesFechaAlta-1);
-			//si entro en febero a trabajar, es el mes 2, 2-1 = 1 --> 12-1 = 11 meses trabajados del aÒo
+			//si entro en febero a trabajar, es el mes 2, 2-1 = 1 --> 12-1 = 11 meses trabajados del a√±o
 
-		}else { //si el aÒo que entro es anterior al de generacion de nomina (ha trabajado el aÒo completo)
+		}else { //si el a√±o que entro es anterior al de generacion de nomina (ha trabajado el a√±o completo)
 
-			mesesTrabajadosAnioCurso = 12; //asÌ 12 dividiendo y 12 multiplicando se van y la formula de bruto queda como para aÒo entero trabajado
+			mesesTrabajadosAnioCurso = 12; //as√≠ 12 dividiendo y 12 multiplicando se van y la formula de bruto queda como para a√±o entero trabajado
 
 		}
 
-		Double brutoAnual = ((trabajador.getCategorias().getSalarioBaseCategoria())/12)*mesesTrabajadosAnioCurso + ((trabajador.getCategorias().getComplementoCategoria())/12)*mesesTrabajadosAnioCurso + calcularAntiguedadAnioGeneracion(anioGeneracion, fechaAlta); //si el aÒo es el que acaba de entrar la antiguedad del aÒo es 0
+		Double brutoAnual = ((trabajador.getCategorias().getSalarioBaseCategoria())/12)*mesesTrabajadosAnioCurso + ((trabajador.getCategorias().getComplementoCategoria())/12)*mesesTrabajadosAnioCurso + calcularAntiguedadAnioGeneracion(anioGeneracion, fechaAlta); //si el a√±o es el que acaba de entrar la antiguedad del a√±o es 0
 		nomina.setBrutoAnual(brutoAnual);
 
 
@@ -1111,11 +1125,11 @@ public class Utilities{
 
 
 
+        
+        
+        
 
-
-
-
-	/////////////////////////////////////CORRECCIONES
+/////////////////////////////////////CORRECCIONES/////////////////////////////////////////////////////////////////77
 	private static void ordenarArrayNIFErrores() {
 
 		Trabajadorbbdd aux = new Trabajadorbbdd();
@@ -1205,13 +1219,12 @@ public class Utilities{
 			}
 
 		}/*else {
-			//si esta en blanco envÌa los datos del trabajador al fichero "Errores.xml" (la segunda y posteriores apariciones)
+			//si esta en blanco env√≠a los datos del trabajador al fichero "Errores.xml" (la segunda y posteriores apariciones)
 			//si entra aqui sabemos que esta en blanco, sea porque es una linea blanca, o porque el trabajador tiene ese campo en blanco
 			//si es una linea en blanco no se guarda para volcar al xml
 			if(t.getNombre() != "") {
 				NIFErrores.add(t); 	 
 			}
-
 		}*/
 
 
@@ -1400,7 +1413,109 @@ public class Utilities{
 		}
 		return String.format("%02d", reps); //0 para llenar con ceros y 2 para la longitud
 	}
+  
+  
+  
+  
+  
+  
+  //////////////////////////////////////BBDD////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  
+    private static void almacenarEnBBDD(){
 
+		TrabajadorbbddDAO trabajadorDAO = new TrabajadorbbddDAO();
+		EmpresasDAO empresaDAO = new EmpresasDAO();
+		CategoriasDAO categoriaDAO = new CategoriasDAO();
+                NominaDAO nominaDAO = new NominaDAO();
+
+		SessionFactory sf = new HibernateUtil().getSessionFactory();
+		Session session = sf.openSession();
+
+		///empresas
+		for(Trabajadorbbdd trabajadorbbdd : trabajadores){
+
+                    if(trabajadorbbdd.getNifnie() != "" && trabajadorbbdd.getSeHaceNomina()){
+                    
+                        //EMPRESAS
+			if (trabajadorbbdd.getEmpresas().getCif() != "") {
+
+				if(empresaDAO.checkExisteEmpresa(trabajadorbbdd.getEmpresas().getCif(), sf, session) == false){
+					//Si el CIF de la empresa a la que pertenece el trabajador no est√°, es que no est√° la empresa y la ponemos
+					empresaDAO.addEmpresa(trabajadorbbdd.getEmpresas(), sf, session);
+					//System.out.println("a");
+				}else {
+					empresaDAO.actualizarNombreEmpresa(trabajadorbbdd.getEmpresas(), sf, session);
+				}
+			}
+
+                        //CATEGORIAS
+			if (trabajadorbbdd.getCategorias().getNombreCategoria() != "") {
+
+				if(categoriaDAO.checkExisteCategoria(trabajadorbbdd.getCategorias().getNombreCategoria(), sf, session) == false){
+
+					//Si el nombre de la categor√≠a no est√°, hay que a√±adir la categor√≠a
+					categoriaDAO.addCategoria(trabajadorbbdd.getCategorias(), sf, session);
+
+				}else{
+					//Si est√°, se actualizan los valores no coincidentes
+
+					categoriaDAO.updateCategoria(trabajadorbbdd.getCategorias(), sf, session);
+
+				}
+
+			}
+                        //TRABAJADORES
+                        if (trabajadorbbdd.getFechaAlta() != null) {
+				if (!trabajadorDAO.checkExisteTrabajador(trabajadorbbdd, sf, session)) {
+					trabajadorDAO.addTrabajador(trabajadorbbdd, sf, session);
+				}else {
+					trabajadorDAO.updateTrabajador(trabajadorbbdd, sf, session);
+				}
+			}
+
+                        
+                        
+                        //NOMINAS
+                        for (Iterator<Nomina> it = trabajadorbbdd.getNominas().iterator(); it.hasNext();) {
+                            Nomina n = it.next();
+                            if(!nominaDAO.checkExisteNomina(n, sf, session)){
+                                nominaDAO.addNomina(n, sf, session);
+                            }else{
+                                nominaDAO.updateNomina(n, sf, session);
+                            }
+                            
+                            
+                        }
+                        
+                        
+                        
+
+                      
+                        
+                        
+                        
+                        
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                                
+                    }           
+
+		}
+
+		sf.close();
+		HibernateUtil.cerrarSessionFactory();
+	}
+
+
+    
 }
-
-
