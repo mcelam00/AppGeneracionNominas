@@ -16,8 +16,11 @@ import java.util.Map;
 import java.util.Set;
 
 import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.kernel.colors.Color;
+import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.pdf.PdfDocument;
+import static com.itextpdf.kernel.pdf.PdfName.Color;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.layout.Document;
@@ -28,6 +31,7 @@ import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Tab;
 import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.element.Text;
 import com.itextpdf.layout.property.TextAlignment;
 import com.sun.glass.ui.Size;
 
@@ -55,7 +59,7 @@ public class Utilities{
 	private static boolean mal = false;
 	private static String fechaGeneracion;
 	private static Nomina nomina;	//nomina que estamos calculando
-	private static Nomina nominaExtra;
+	private static Nomina nominaExtra = new Nomina();
 	private static int idNomina = 0;
 
 	private static String RUTA_PDFs = "./resources/nominas";
@@ -448,7 +452,6 @@ public class Utilities{
                         nominaExtra.setTrabajadorbbdd(trabajador);
 			trabajador.getNominas().add(nominaExtra);
 			sacarPdf(trabajador, nominaExtra, true);
-
 			//System.out.println("");
 		}
 
@@ -530,14 +533,14 @@ public class Utilities{
                 
 	}
       
-        
+         
 //////////////////////////////////////SACARPDF/////////////////////////////////////////////////////////////////////
 
 	private static void sacarPdf(Trabajadorbbdd trabajador, Nomina nomina, boolean esExtra) {
 
 		if (!esExtra) {//Para la normal
 			PdfWriter writer;
-			String ruta = RUTA_PDFs+"/"+trabajador.getNifnie()+trabajador.getNombre()+trabajador.getApellido1()+trabajador.getApellido2()+nomina.getMes()+nomina.getAnio()+".pdf";
+			String ruta = RUTA_PDFs+"/"+trabajador.getNifnie()+trabajador.getNombre()+trabajador.getApellido1()+trabajador.getApellido2()+"_"+nomina.getMes()+"-"+nomina.getAnio()+".pdf";
 			try {
 				writer = new PdfWriter(ruta);
 
@@ -551,7 +554,7 @@ public class Utilities{
 
 				Cell cell1 = new Cell();
 				cell1.setBorder(new SolidBorder(1));
-				cell1.setWidth(250);
+				cell1.setWidth(200);
 				cell1.setTextAlignment(TextAlignment.CENTER);
 				cell1.add(new Paragraph(trabajador.getEmpresas().getNombre()));//nombre empresa
 				cell1.add(new Paragraph("CIF: "+trabajador.getEmpresas().getCif()));//cif empresa
@@ -584,7 +587,7 @@ public class Utilities{
 				Cell cell3 = new Cell();
 				cell3.setBorder(Border.NO_BORDER);
 				cell3.setTextAlignment(TextAlignment.RIGHT);
-				cell3.setPaddingLeft(15);
+				cell3.setPaddingLeft(25);
 				cell3.setPaddingTop(20);
 				cell3.setWidth(250);
 				cell3.add(img);
@@ -600,7 +603,8 @@ public class Utilities{
 				Cell cell4izda = new Cell();
 				cell4izda.setTextAlignment(TextAlignment.LEFT);
 				cell4izda.setBorder(Border.NO_BORDER);
-				cell4izda.add(new Paragraph("Destinatario:"));
+                           
+				cell4izda.add(new Paragraph().add(new Text("Destinatario:").setBold()));
 
 				Cell cell4dcha = new Cell();
 				cell4dcha.setTextAlignment(TextAlignment.RIGHT);
@@ -620,7 +624,7 @@ public class Utilities{
 				Cell cell5 = new Cell();
 				cell5.setTextAlignment(TextAlignment.CENTER);
 				cell5.setPaddingTop(20);
-				cell5.add(new Paragraph("Nómina: "+fechaAltaTrab));
+				cell5.add(new Paragraph().add(new Text("Nómina: "+nomina.getMes()+" del "+nomina.getAnio()).setBold().setItalic()));
 
 				int dias;
 				if (nomina.getMes() == 1 || nomina.getMes() == 3 ||nomina.getMes() == 5 ||nomina.getMes() == 7 ||nomina.getMes() == 8 ||nomina.getMes() == 10 ||nomina.getMes() == 12) {
@@ -635,11 +639,11 @@ public class Utilities{
 
 				Table tabla3 = new Table(5);
 				tabla3.setTextAlignment(TextAlignment.CENTER);
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Conceptos")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("Cantidad")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("Imp. Unitario")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("Devengo")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("Deducción")));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Conceptos")).setBorder(new SolidBorder(1)).setBorderLeft(Border.NO_BORDER).setBorderRight(Border.NO_BORDER));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("Cantidad")).setBorder(new SolidBorder(1)).setBorderLeft(Border.NO_BORDER).setBorderRight(Border.NO_BORDER));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("Imp. Unitario")).setBorder(new SolidBorder(1)).setBorderLeft(Border.NO_BORDER).setBorderRight(Border.NO_BORDER));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("Devengo")).setBorder(new SolidBorder(1)).setBorderLeft(Border.NO_BORDER).setBorderRight(Border.NO_BORDER));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("Deducción")).setBorder(new SolidBorder(1)).setBorderLeft(Border.NO_BORDER).setBorderRight(Border.NO_BORDER));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Salario base")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(dias+" días")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getImporteSalarioMes()/dias))));
@@ -657,7 +661,7 @@ public class Utilities{
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Antigüedad")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(nomina.getNumeroTrienios()+" Trienios")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getImporteTrienios()/dias))));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getImporteTrienios()/nomina.getNumeroTrienios()))));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getImporteTrienios()))));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Contingencias generales")));
@@ -680,21 +684,21 @@ public class Utilities{
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getImporteIrpf()))));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Total deducciones")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",(nomina.getImporteSeguridadSocialTrabajador()+nomina.getImporteDesempleoTrabajador()+nomina.getImporteFormacionTrabajador()+nomina.getImporteIrpf())))));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Total deducciones")).setBorderTop(new SolidBorder(1)));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")).setBorderTop(new SolidBorder(1)));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")).setBorderTop(new SolidBorder(1)));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")).setBorderTop(new SolidBorder(1)));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",(nomina.getImporteSeguridadSocialTrabajador()+nomina.getImporteDesempleoTrabajador()+nomina.getImporteFormacionTrabajador()+nomina.getImporteIrpf())))).setBorderTop(new SolidBorder(1)));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Total devengos")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getBrutoNomina()))));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Líquido a percibir")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getLiquidoNomina()))));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Líquido a percibir")).setBorderTop(new SolidBorder(1)));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")).setBorderTop(new SolidBorder(1)));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")).setBorderTop(new SolidBorder(1)));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")).setBorderTop(new SolidBorder(1)));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getLiquidoNomina()))).setBorderTop(new SolidBorder(1)));
 
 
 				//espacios
@@ -703,31 +707,51 @@ public class Utilities{
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingBottom(40).add(new Paragraph(" ")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingBottom(40).add(new Paragraph(" ")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingBottom(40).add(new Paragraph(" ")));
-
+                              
+                                Color gris = new DeviceRgb(174, 174, 174);
+                                Color rojo = new DeviceRgb(255, 0, 0);
 
 
 				Table tabla4 = new Table(2);
-				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Cálculo empresario: BASE")));
-				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph(""+String.format("%.2f",nomina.getBaseEmpresario()))));
-				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).setPaddingRight(230).add(new Paragraph("Contingencias comunes empresario "+String.format("%.2f",nomina.getSeguridadSocialEmpresario()))));
-				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph(""+String.format("%.2f",nomina.getImporteSeguridadSocialEmpresario()))));
-				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Desempleo "+String.format("%.2f",nomina.getDesempleoEmpresario()))));
-				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph(""+String.format("%.2f",nomina.getImporteDesempleoEmpresario()))));
-				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Formación "+String.format("%.2f",nomina.getFormacionEmpresario()))));
-				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph(""+String.format("%.2f",nomina.getImporteFormacionEmpresario()))));
-				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Accidentes de trabajo "+String.format("%.2f",nomina.getAccidentesTrabajoEmpresario()))));
-				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph(""+String.format("%.2f",nomina.getImporteAccidentesTrabajoEmpresario()))));
-				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("FOGASA "+String.format("%.2f",nomina.getFogasaempresario()))));
-				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph(""+String.format("%.2f",nomina.getImporteFogasaempresario()))));
-				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Total empresario ")));
-				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph(""+String.format("%.2f",(nomina.getImporteFogasaempresario()+nomina.getImporteAccidentesTrabajoEmpresario()+nomina.getImporteFormacionEmpresario()+nomina.getImporteDesempleoEmpresario()+nomina.getImporteSeguridadSocialEmpresario())))));
+                                tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph().add(new Text("Cálculo empresario: BASE").setFontColor(gris))).setBorder(new SolidBorder(gris, 1)).setBorderLeft(Border.NO_BORDER).setBorderRight(Border.NO_BORDER));
 
+                                tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph().add(new Text(""+String.format("%.2f",nomina.getBaseEmpresario())).setFontColor(gris))).setBorder(new SolidBorder(gris, 1)).setBorderLeft(Border.NO_BORDER).setBorderRight(Border.NO_BORDER));
+
+                                tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).setPaddingRight(230).add(new Paragraph().add(new Text("Contingencias comunes empresario "+String.format("%.2f",nomina.getSeguridadSocialEmpresario())+"%").setFontColor(gris))));
+
+                                tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph().add(new Text(""+String.format("%.2f",nomina.getImporteSeguridadSocialEmpresario())).setFontColor(gris))));
+
+                                tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph().add(new Text("Desempleo "+String.format("%.2f",nomina.getDesempleoEmpresario())+"%").setFontColor(gris))));
+
+                                tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph().add(new Text(""+String.format("%.2f",nomina.getImporteDesempleoEmpresario())).setFontColor(gris))));
+
+                                tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph().add(new Text("Formación "+String.format("%.2f",nomina.getFormacionEmpresario())+"%").setFontColor(gris))));
+
+                                tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph().add(new Text(""+String.format("%.2f",nomina.getImporteFormacionEmpresario())).setFontColor(gris))));
+
+                              tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph().add(new Text("Accidentes de trabajo "+String.format("%.2f",nomina.getAccidentesTrabajoEmpresario())+"%").setFontColor(gris))));
+
+				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph().add(new Text(""+String.format("%.2f",nomina.getImporteAccidentesTrabajoEmpresario())).setFontColor(gris))));
+
+                                
+                                tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph().add(new Text("FOGASA "+String.format("%.2f",nomina.getFogasaempresario())+"%").setFontColor(gris))));
+
+                                tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph().add(new Text(""+String.format("%.2f",nomina.getImporteFogasaempresario())).setFontColor(gris))));
+
+                                tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph().add(new Text("Total empresario ").setFontColor(gris))).setBorderTop(new SolidBorder(gris, 1)));
+
+				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph().add(new Text(""+String.format("%.2f",(nomina.getImporteFogasaempresario()+nomina.getImporteAccidentesTrabajoEmpresario()+nomina.getImporteFormacionEmpresario()+nomina.getImporteDesempleoEmpresario()+nomina.getImporteSeguridadSocialEmpresario()))).setFontColor(gris))).setBorderTop(new SolidBorder(gris, 1)));
+
+                                
 				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingBottom(10).add(new Paragraph(" ")));
 				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingBottom(10).add(new Paragraph(" ")));
+                                
 
-				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("COSTE TOTOAL TRABAJADOR ")));
-				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph(""+String.format("%.2f",nomina.getCosteTotalEmpresario()))));
+                                tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph().add(new Text("COSTE TOTAL TRABAJADOR ").setFontColor(rojo))).setBorder(new SolidBorder(3)).setBorderRight(Border.NO_BORDER));
 
+				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph().add(new Text(""+String.format("%.2f",nomina.getCosteTotalEmpresario())).setFontColor(rojo))).setBorder(new SolidBorder(3)).setBorderLeft(Border.NO_BORDER));
+
+                                
 
 				doc.add(tabla1);
 				doc.add(tabla2);
@@ -742,7 +766,7 @@ public class Utilities{
 			}
 		}else {//para la extra
 			PdfWriter writer;
-			String ruta = RUTA_PDFs+"/"+trabajador.getNifnie()+trabajador.getNombre()+trabajador.getApellido1()+trabajador.getApellido2()+nomina.getMes()+nomina.getAnio()+"EXTRA.pdf";
+			String ruta = RUTA_PDFs+"/"+trabajador.getNifnie()+trabajador.getNombre()+trabajador.getApellido1()+trabajador.getApellido2()+"_"+nomina.getMes()+"-"+nomina.getAnio()+"EXTRA.pdf";
 			try {
 				writer = new PdfWriter(ruta);
 
@@ -756,7 +780,7 @@ public class Utilities{
 
 				Cell cell1 = new Cell();
 				cell1.setBorder(new SolidBorder(1));
-				cell1.setWidth(250);
+				cell1.setWidth(200);
 				cell1.setTextAlignment(TextAlignment.CENTER);
 				cell1.add(new Paragraph(trabajador.getEmpresas().getNombre()));//nombre empresa
 				cell1.add(new Paragraph("CIF: "+trabajador.getEmpresas().getCif()));//cif empresa
@@ -789,7 +813,7 @@ public class Utilities{
 				Cell cell3 = new Cell();
 				cell3.setBorder(Border.NO_BORDER);
 				cell3.setTextAlignment(TextAlignment.RIGHT);
-				cell3.setPaddingLeft(15);
+				cell3.setPaddingLeft(25);
 				cell3.setPaddingTop(20);
 				cell3.setWidth(250);
 				cell3.add(img);
@@ -805,7 +829,7 @@ public class Utilities{
 				Cell cell4izda = new Cell();
 				cell4izda.setTextAlignment(TextAlignment.LEFT);
 				cell4izda.setBorder(Border.NO_BORDER);
-				cell4izda.add(new Paragraph("Destinatario:"));
+				cell4izda.add(new Paragraph().add(new Text("Destinatario:").setBold()));
 
 				Cell cell4dcha = new Cell();
 				cell4dcha.setTextAlignment(TextAlignment.RIGHT);
@@ -825,7 +849,7 @@ public class Utilities{
 				Cell cell5 = new Cell();
 				cell5.setTextAlignment(TextAlignment.CENTER);
 				cell5.setPaddingTop(20);
-				cell5.add(new Paragraph("Nómina: "+fechaAltaTrab));
+				cell5.add(new Paragraph().add(new Text("Nómina: EXTRA del "+nomina.getMes()+" del "+nomina.getAnio()).setBold().setItalic()));
 
 				int dias;
 				if (nomina.getMes() == 1 || nomina.getMes() == 3 ||nomina.getMes() == 5 ||nomina.getMes() == 7 ||nomina.getMes() == 8 ||nomina.getMes() == 10 ||nomina.getMes() == 12) {
@@ -840,11 +864,11 @@ public class Utilities{
 
 				Table tabla3 = new Table(5);
 				tabla3.setTextAlignment(TextAlignment.CENTER);
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Conceptos")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("Cantidad")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("Imp. Unitario")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("Devengo")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("Deducción")));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Conceptos")).setBorder(new SolidBorder(1)).setBorderLeft(Border.NO_BORDER).setBorderRight(Border.NO_BORDER));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("Cantidad")).setBorder(new SolidBorder(1)).setBorderLeft(Border.NO_BORDER).setBorderRight(Border.NO_BORDER));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("Imp. Unitario")).setBorder(new SolidBorder(1)).setBorderLeft(Border.NO_BORDER).setBorderRight(Border.NO_BORDER));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("Devengo")).setBorder(new SolidBorder(1)).setBorderLeft(Border.NO_BORDER).setBorderRight(Border.NO_BORDER));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("Deducción")).setBorder(new SolidBorder(1)).setBorderLeft(Border.NO_BORDER).setBorderRight(Border.NO_BORDER));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Salario base")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(dias+" días")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getImporteSalarioMes()/dias))));
@@ -862,7 +886,7 @@ public class Utilities{
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Antigüedad")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(nomina.getNumeroTrienios()+" Trienios")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getImporteTrienios()/dias))));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getImporteTrienios()/nomina.getNumeroTrienios()))));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getImporteTrienios()))));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Contingencias generales")));
@@ -885,21 +909,21 @@ public class Utilities{
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getImporteIrpf()))));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Total deducciones")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",(nomina.getImporteSeguridadSocialTrabajador()+nomina.getImporteDesempleoTrabajador()+nomina.getImporteFormacionTrabajador()+nomina.getImporteIrpf())))));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Total deducciones")).setBorderTop(new SolidBorder(1)));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")).setBorderTop(new SolidBorder(1)));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")).setBorderTop(new SolidBorder(1)));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")).setBorderTop(new SolidBorder(1)));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",(nomina.getImporteSeguridadSocialTrabajador()+nomina.getImporteDesempleoTrabajador()+nomina.getImporteFormacionTrabajador()+nomina.getImporteIrpf())))).setBorderTop(new SolidBorder(1)));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Total devengos")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getBrutoNomina()))));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Líquido a percibir")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")));
-				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getLiquidoNomina()))));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Líquido a percibir")).setBorderTop(new SolidBorder(1)));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")).setBorderTop(new SolidBorder(1)));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")).setBorderTop(new SolidBorder(1)));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph("")).setBorderTop(new SolidBorder(1)));
+				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setPaddingLeft(20).add(new Paragraph(""+String.format("%.2f",nomina.getLiquidoNomina()))).setBorderTop(new SolidBorder(1)));
 
 
 				//espacios
@@ -909,29 +933,31 @@ public class Utilities{
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingBottom(40).add(new Paragraph(" ")));
 				tabla3.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingBottom(40).add(new Paragraph(" ")));
 
+                                Color gris = new DeviceRgb(174, 174, 174);
+                                Color rojo = new DeviceRgb(255, 0, 0);
 
 
 				Table tabla4 = new Table(2);
-				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Cálculo empresario: BASE")));
-				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph(""+String.format("%.2f",nomina.getBaseEmpresario()))));
-				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Contingencias comunes empresario "+String.format("%.2f",nomina.getSeguridadSocialEmpresario()))));
-				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setPaddingLeft(274).add(new Paragraph(""+String.format("%.2f",nomina.getImporteSeguridadSocialEmpresario()))));
-				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Desempleo "+String.format("%.2f",nomina.getDesempleoEmpresario()))));
-				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph(""+String.format("%.2f",nomina.getImporteDesempleoEmpresario()))));
-				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Formación "+String.format("%.2f",nomina.getFormacionEmpresario()))));
-				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph(""+String.format("%.2f",nomina.getImporteFormacionEmpresario()))));
-				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Accidentes de trabajo "+String.format("%.2f",nomina.getAccidentesTrabajoEmpresario()))));
-				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph(""+String.format("%.2f",nomina.getImporteAccidentesTrabajoEmpresario()))));
-				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("FOGASA "+String.format("%.2f",nomina.getFogasaempresario()))));
-				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph(""+String.format("%.2f",nomina.getImporteFogasaempresario()))));
-				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("Total empresario ")));
-				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph(""+String.format("%.2f",(nomina.getImporteFogasaempresario()+nomina.getImporteAccidentesTrabajoEmpresario()+nomina.getImporteFormacionEmpresario()+nomina.getImporteDesempleoEmpresario()+nomina.getImporteSeguridadSocialEmpresario())))));
+				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph().add(new Text("Cálculo empresario: BASE").setFontColor(gris))).setBorder(new SolidBorder(gris, 1)).setBorderLeft(Border.NO_BORDER).setBorderRight(Border.NO_BORDER));
+				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph().add(new Text(""+String.format("%.2f",nomina.getBaseEmpresario())).setFontColor(gris))).setBorder(new SolidBorder(gris, 1)).setBorderLeft(Border.NO_BORDER).setBorderRight(Border.NO_BORDER));
+				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph().add(new Text("Contingencias comunes empresario "+String.format("%.2f",nomina.getSeguridadSocialEmpresario())+"%").setFontColor(gris))));
+				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).setPaddingLeft(230).add(new Paragraph().add(new Text(""+String.format("%.2f",nomina.getImporteSeguridadSocialEmpresario())).setFontColor(gris))));
+				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph().add(new Text("Desempleo "+String.format("%.2f",nomina.getDesempleoEmpresario())+"%").setFontColor(gris))));
+				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph().add(new Text(""+String.format("%.2f",nomina.getImporteDesempleoEmpresario())).setFontColor(gris))));
+				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph().add(new Text("Formación "+String.format("%.2f",nomina.getFormacionEmpresario())+"%").setFontColor(gris))));
+				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph().add(new Text(""+String.format("%.2f",nomina.getImporteFormacionEmpresario())).setFontColor(gris))));
+				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph().add(new Text("Accidentes de trabajo "+String.format("%.2f",nomina.getAccidentesTrabajoEmpresario())+"%").setFontColor(gris))));
+				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph().add(new Text(""+String.format("%.2f",nomina.getImporteAccidentesTrabajoEmpresario())).setFontColor(gris))));
+				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph().add(new Text("FOGASA "+String.format("%.2f",nomina.getFogasaempresario())+"%").setFontColor(gris))));
+				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph().add(new Text(""+String.format("%.2f",nomina.getImporteFogasaempresario())).setFontColor(gris))));
+				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph().add(new Text("Total empresario ").setFontColor(gris))).setBorderTop(new SolidBorder(gris, 1)));
+				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph().add(new Text(""+String.format("%.2f",(nomina.getImporteFogasaempresario()+nomina.getImporteAccidentesTrabajoEmpresario()+nomina.getImporteFormacionEmpresario()+nomina.getImporteDesempleoEmpresario()+nomina.getImporteSeguridadSocialEmpresario()))).setFontColor(gris))).setBorderTop(new SolidBorder(gris, 1)));
 
 				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingBottom(10).add(new Paragraph(" ")));
 				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER).setPaddingBottom(10).add(new Paragraph(" ")));
 
-				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph("COSTE TOTOAL TRABAJADOR ")));
-				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph(""+String.format("%.2f",nomina.getCosteTotalEmpresario()))));
+				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.LEFT).setBorder(Border.NO_BORDER).add(new Paragraph().add(new Text("COSTE TOTAL TRABAJADOR ").setFontColor(rojo))).setBorder(new SolidBorder(3)).setBorderRight(Border.NO_BORDER));
+				tabla4.addCell(new Cell().setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER).add(new Paragraph().add(new Text(""+String.format("%.2f",nomina.getCosteTotalEmpresario())).setFontColor(rojo))).setBorder(new SolidBorder(3)).setBorderLeft(Border.NO_BORDER));
 
 
 
@@ -961,6 +987,8 @@ public class Utilities{
 
 		int numTrieniosExtra = calcularTrienioPorMes(mesDeLaExtra,anioGeneracion, fechaAltaTrab); //calculamos nº de trienios en la fecha de la extra
 
+                nominaExtra.setNumeroTrienios(numTrieniosExtra);
+                
 		if(numTrieniosExtra == 0) {
 			importeTrieniosExtra = 0.0;
 		}else {
