@@ -59,7 +59,7 @@ public class Utilities{
 	private static boolean mal = false;
 	private static String fechaGeneracion;
 	private static Nomina nomina;	//nomina que estamos calculando
-	private static Nomina nominaExtra = new Nomina();
+	private static Nomina nominaExtra;
 	private static int idNomina = 0;
 
 	private static String RUTA_PDFs = "./resources/nominas";
@@ -296,7 +296,7 @@ public class Utilities{
 		if(mesGeneracion >= 1 && mesGeneracion <= 5) { //Nomina a generar entre enero y mayo incluido
 			//le corresponde extra de Junio
 
-			Double importeTrieniosExtra = recalculoTrieniosExtra(6,anioGeneracion, fechaAltaTrab);
+			Double importeTrieniosExtra = recalculoTrieniosExtra(6,anioGeneracion, fechaAltaTrab, false);
 			Double importeBrutoExtra = salarioBaseMes + complementoMes + importeTrieniosExtra;
 
 			//hago 1/6 y lo grabo en el atributo como el valor del prorrateo correspondiente para la nomina que nos piden si cae en este tramo
@@ -308,7 +308,7 @@ public class Utilities{
 			//le corresponde la extra de Diciembre
 
 
-			Double importeTrieniosExtra = recalculoTrieniosExtra(12,anioGeneracion, fechaAltaTrab);
+			Double importeTrieniosExtra = recalculoTrieniosExtra(12,anioGeneracion, fechaAltaTrab, false);
 			Double importeBrutoExtra = salarioBaseMes + complementoMes + importeTrieniosExtra;
 
 			//hago 1/6 y lo grabo en el atributo como el valor del prorrateo correspondiente para la nomina que nos piden si cae en este tramo
@@ -319,7 +319,7 @@ public class Utilities{
 		}else {
 			//ESPECIAL Es el caso de Diciembre que le corresponde la extra de Junio del sisguiente año
 
-			Double importeTrieniosExtra = recalculoTrieniosExtra(6,anioGeneracion+1, fechaAltaTrab);
+			Double importeTrieniosExtra = recalculoTrieniosExtra(6,anioGeneracion+1, fechaAltaTrab, false);
 			Double importeBrutoExtra = salarioBaseMes + complementoMes + importeTrieniosExtra;
 
 			//hago 1/6 y lo grabo en el atributo como el valor del prorrateo correspondiente para la nomina que nos piden si cae en este tramo
@@ -388,6 +388,7 @@ public class Utilities{
 
 		if(trabajador.getProrrataExtra() == false && (mesGeneracion == 6 || mesGeneracion == 12)) { //no tiene prorrateo y estoy en un mes de EXTRA, a parte de la nomina basica saco la extra tambien del trabajador
 			//si no prorrateo y el mes es de extra tiene dos nominas
+                        nominaExtra = new Nomina();
 			nominaExtra = new Nomina();
 
 			nominaExtra.setAnio(nomina.getAnio());
@@ -426,14 +427,14 @@ public class Utilities{
 			if(mesGeneracion == 6) {
 				//es la extra de junio
 
-				importeTrieniosExtra = recalculoTrieniosExtra(6, anioGeneracion, fechaAltaTrab);
+				importeTrieniosExtra = recalculoTrieniosExtra(6, anioGeneracion, fechaAltaTrab, true);
 				nominaExtra.setImporteTrienios(importeTrieniosExtra);
 
 
 			}else {
 				//es la extra de diciembre
 
-				importeTrieniosExtra = recalculoTrieniosExtra(12, anioGeneracion, fechaAltaTrab);
+				importeTrieniosExtra = recalculoTrieniosExtra(12, anioGeneracion, fechaAltaTrab, true);
 				nominaExtra.setImporteTrienios(importeTrieniosExtra);
 
 			}
@@ -981,13 +982,15 @@ public class Utilities{
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-	private static Double recalculoTrieniosExtra(int mesDeLaExtra , int anioGeneracion, String fechaAltaTrab) {
+	private static Double recalculoTrieniosExtra(int mesDeLaExtra , int anioGeneracion, String fechaAltaTrab, boolean esExtra) {
 
 		Double importeTrieniosExtra;
 
 		int numTrieniosExtra = calcularTrienioPorMes(mesDeLaExtra,anioGeneracion, fechaAltaTrab); //calculamos nº de trienios en la fecha de la extra
 
-                nominaExtra.setNumeroTrienios(numTrieniosExtra);
+                if(esExtra == true){//para poder reusar el metodo
+                    nominaExtra.setNumeroTrienios(numTrieniosExtra);
+                }
                 
 		if(numTrieniosExtra == 0) {
 			importeTrieniosExtra = 0.0;
